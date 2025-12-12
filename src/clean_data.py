@@ -143,12 +143,12 @@ class SarajevoFlatsDataCleaner:
                 df['heating'] = df['heating'].astype(str)
             
             # Merge wood heating into "Other"
-            # Wood heating in the original language could be "Drvo" or "Wood"
-            df['heating'] = df['heating'].replace(['Drvo', 'Wood'], 'Ostalo')
-            
-            # If "Ostalo" doesn't exist in the data, map to "Other"
-            if 'Ostalo' in df['heating'].values and 'Ostalo' not in df['heating'].unique():
-                df['heating'] = df['heating'].replace('Ostalo', 'Other')
+            # Wood heating could be "Drvo" (Bosnian) or "Wood" (English)
+            # "Other" could be "Ostalo" (Bosnian) or "Other" (English)
+            # Replace wood heating with whichever "Other" category exists
+            unique_vals = df['heating'].unique()
+            other_category = 'Ostalo' if 'Ostalo' in unique_vals else 'Other'
+            df['heating'] = df['heating'].replace(['Drvo', 'Wood'], other_category)
             
             # Convert back to category
             if is_categorical:
