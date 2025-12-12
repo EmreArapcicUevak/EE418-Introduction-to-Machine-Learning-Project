@@ -137,17 +137,30 @@ class SarajevoFlatsDataCleaner:
             Dataframe with rare heating categories merged
         """
         if 'heating' in df.columns:
+            # Check if wood heating exists before attempting replacement
+            unique_vals = df['heating'].unique()
+            wood_categories = [cat for cat in ['Drvo', 'Wood'] if cat in unique_vals]
+            
+            if not wood_categories:
+                # No wood heating to merge
+                return df
+            
             # Temporarily convert to string to avoid FutureWarning with categorical replace
             is_categorical = pd.api.types.is_categorical_dtype(df['heating'])
             if is_categorical:
                 df['heating'] = df['heating'].astype(str)
             
-            # Merge wood heating into "Other"
-            # Wood heating could be "Drvo" (Bosnian) or "Wood" (English)
+            # Determine which "Other" category exists in the data
             # "Other" could be "Ostalo" (Bosnian) or "Other" (English)
-            # Replace wood heating with whichever "Other" category exists
-            unique_vals = df['heating'].unique()
-            other_category = 'Ostalo' if 'Ostalo' in unique_vals else 'Other'
+            if 'Ostalo' in unique_vals:
+                other_category = 'Ostalo'
+            elif 'Other' in unique_vals:
+                other_category = 'Other'
+            else:
+                # If neither exists, create "Other" as the new category
+                other_category = 'Other'
+            
+            # Replace wood heating with the "Other" category
             df['heating'] = df['heating'].replace(['Drvo', 'Wood'], other_category)
             
             # Convert back to category
@@ -190,9 +203,11 @@ class SarajevoFlatsDataCleaner:
             Dataframe with floor values capped
         """
         if 'level' in df.columns:
-            # Replace "20+" with 20 and convert to numeric
+            # Replace "20+" with 20
             df['level'] = df['level'].replace('20+', '20')
-            # Convert to numeric, handling any non-numeric values
+            # Convert to numeric, coercing any remaining non-numeric values to NaN
+            # Note: This may introduce NaN values for invalid entries, but those
+            # will be preserved as the level column is not a required field
             df['level'] = pd.to_numeric(df['level'], errors='coerce')
         
         return df
@@ -264,7 +279,7 @@ def main():
     Main entry point for the data cleaning script.
     
     Usage:
-        python clean_data.py input.csv output.csv
+        python src/clean_data.py input.csv output.csv
     """
     parser = argparse.ArgumentParser(
         description='Clean Sarajevo real estate dataset'
