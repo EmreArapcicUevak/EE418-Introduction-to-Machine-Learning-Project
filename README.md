@@ -95,6 +95,20 @@ pip install -r requirements.txt
 
 ---
 
+## Data Quality Notes
+
+### Geographic Boundaries
+
+Some apartments may appear slightly outside strict Canton Sarajevo geographic boundaries when plotted on a map, but are retained in the dataset because:
+- They have valid Canton Sarajevo municipality classifications
+- They were scraped with the `canton=9` filter on OLX.ba
+- Geographic boundary shapefiles may not perfectly align with administrative/market boundaries
+- All affected listings have complete and valid feature sets
+
+See `data/README.md` for detailed information about this data quality decision.
+
+---
+
 ## Notes
 
 * Scraped data is intended for **educational and research purposes only**.
