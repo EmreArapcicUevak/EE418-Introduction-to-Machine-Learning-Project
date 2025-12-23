@@ -46,8 +46,9 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
   compact = false,
 }) => {
   const [imageError, setImageError] = useState(false);
-  const dealColor = getDealScoreColor(listing.deal_score);
-  const dealLabel = getDealScoreLabel(listing.deal_score);
+  const dealScore = Number(listing.deal_score ?? 0) || 0;
+  const dealColor = getDealScoreColor(dealScore);
+  const dealLabel = getDealScoreLabel(dealScore);
 
   // Get thumbnail image
   const thumbnailUrl = listing.thumbnail_url || listing.image_urls?.[0] || null;
@@ -125,9 +126,9 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
             <Text style={[styles.price, compact && styles.priceCompact]}>
               {formatPrice(listing.price_numeric)}
             </Text>
-            {!compact && listing.price_numeric ? (
+            {!compact && listing.predicted_price ? (
               <Text style={styles.priceEur}>
-                {formatPriceEur(listing.price_numeric)}
+                Predicted: {formatPrice(listing.predicted_price)}
               </Text>
             ) : null}
           </View>
@@ -136,9 +137,9 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
           <View style={[styles.dealBadge, { backgroundColor: dealColor + '20' }]}>
             <Ionicons
               name={
-                (listing.deal_score || 0) >= 8
+                dealScore >= 90
                   ? "star"
-                  : (listing.deal_score || 0) >= 6
+                  : dealScore >= 70
                   ? "star-half"
                   : "star-outline"
               }
@@ -146,7 +147,7 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               color={dealColor}
             />
             <Text style={[styles.dealScoreText, { color: dealColor }]}>
-              {listing.deal_score || 0}
+              {Math.round(dealScore)}
             </Text>
           </View>
         </View>

@@ -110,7 +110,23 @@ export const useListings = (options: UseListingsOptions = {}) => {
         throw new Error('Failed to fetch listings')
       }
 
-      const data = result.data || []
+      const toNum = (val: unknown): number | null => {
+        if (val === undefined || val === null) return null
+        const num = Number(val)
+        return Number.isFinite(num) ? num : null
+      }
+
+      const data = (result.data || []).map(l => ({
+        ...l,
+        price_numeric: toNum(l.price_numeric),
+        rooms: toNum(l.rooms),
+        square_m2: toNum(l.square_m2),
+        level: toNum(l.level),
+        deal_score: toNum(l.deal_score),
+        predicted_price: toNum(l.predicted_price),
+        price_difference: toNum(l.price_difference),
+      }))
+      console.log("Example listing:", data[0])
       const total = typeof result.total === 'number' ? result.total : undefined
 
       setTotalCount(total ?? data.length)

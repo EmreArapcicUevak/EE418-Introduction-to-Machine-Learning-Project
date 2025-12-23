@@ -7,35 +7,54 @@ export type DataSource = 'olx' | 'nekretnine' | 'all'
 
 export interface Listing {
   id: number
-  source: Exclude<DataSource, 'all'>
-  title: string
-  price_numeric: number
-  municipality: string
-  property_type: string
-  ad_type?: string
-  rooms: number
-  square_m2: number
-  condition: string
-  deal_score: number
+  external_id: string
   url: string
-  equipment: string
-  heating: string
-  level: string
-  latitude?: number
-  longitude?: number
-  description?: string
-  thumbnail_url?: string
-  image_urls?: string[]
-  posted_date?: string
-  scraped_at?: string
-  bathrooms?: number
-  orientation?: string
-  floor_type?: string
-  year_built?: number
-  has_garage?: boolean
-  has_elevator?: boolean
-  has_balcony?: boolean
-  has_parking?: boolean
+  title: string | null
+  description?: string | null
+  price_numeric: number | null
+  price_per_m2?: number | null
+  municipality?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  property_type?: string | null
+  ad_type?: string | null
+  rooms?: number | null
+  square_m2?: number | null
+  bathrooms?: number | null
+  condition?: string | null
+  equipment?: string | null
+  level?: string | number | null
+  level_numeric?: number | null
+  heating?: string | null
+  orientation?: string | null
+  floor_type?: string | null
+  year_built?: string | number | null
+  has_garage?: boolean | null
+  has_internet?: boolean | null
+  has_cable_tv?: boolean | null
+  has_elevator?: boolean | null
+  has_balcony?: boolean | null
+  has_basement?: boolean | null
+  has_parking?: boolean | null
+  thumbnail_url?: string | null
+  image_urls?: string[] | null
+  predicted_price?: number | null
+  price_difference?: number | null
+  deal_score?: number | null
+  is_underpriced?: boolean | null
+  is_overpriced?: boolean | null
+  publication_date?: string | null
+  posted_date?: string | null
+  scraped_at?: string | null
+  last_updated?: string | null
+  is_active?: boolean | null
+  expired_at?: string | null
+  extra_fields?: Record<string, any> | null
+  seller_name?: string | null
+  seller_type?: string | null
+  seller_phone?: string | null
+  source: Exclude<DataSource, 'all'>
 }
 
 export interface ListingFilters {

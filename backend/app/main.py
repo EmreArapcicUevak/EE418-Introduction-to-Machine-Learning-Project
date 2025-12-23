@@ -1,7 +1,9 @@
 # main.py
 import os
+import joblib
 import pandas as pd
 import numpy as np
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
@@ -11,15 +13,21 @@ from supabase import create_client, Client
 # Import our custom modules
 from app.services.auth import AuthService
 from app.models.models import (
-    UserSignUp, UserSignIn, UserProfileUpdate,
-    UserPreferences,
-
+    UserSignUp, UserSignIn, UserProfileUpdate, UserPreferences
 )
 from app.core.exceptions import unhandled_exception_handler
 from app.api.api_enhanced import router as enhanced_router
 from app.api.api_favorites import router as favorites_router
 from app.api.predict import router as predict_router
 from app.api.health import router as health_router
+from app.ml.poi.poi_loader import load_poi_data
+
+PLACE = "Sarajevo, Bosnia and Herzegovina"
+SALES_MODEL_PATH = os.getenv("SALES_MODEL_PATH")
+RENTALS_MODEL_PATH = os.getenv("RENTALS_MODEL_PATH")
+
+sales_model = joblib.load(SALES_MODEL_PATH)
+rentals_model = joblib.load(RENTALS_MODEL_PATH)
 
 # Load environment variables
 load_dotenv()
@@ -36,15 +44,31 @@ supabase_admin: Client = create_client(supabase_url, supabase_service_key) if su
 # Initialize auth service
 auth_service = AuthService(supabase)
 
-app = FastAPI(title="Real Estate Price Predictor API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.poi_data = load_poi_data(
+        PLACE
+    )
+
+    app.state.sales_model = joblib.load(
+        SALES_MODEL_PATH
+    )
+
+    app.state.rentals_model = joblib.load(
+        RENTALS_MODEL_PATH
+    )
+
+    yield
+
+app = FastAPI(title="Sarajevo Real Estate Price Predictor API", lifespan=lifespan)
 
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # Include enhanced API routers
-app.include_router(enhanced_router, prefix="/api", tags=["Enhanced Listings API"])
-app.include_router(favorites_router, prefix="/api", tags=["User Favorites & Saved Searches"])
-app.include_router(predict_router, prefix="/api", tags=["Price Prediction"])
-app.include_router(health_router, prefix="/api", tags=["Health Check"])
+app.include_router(enhanced_router, tags=["Enhanced Listings API"])
+app.include_router(favorites_router, tags=["User Favorites & Saved Searches"])
+app.include_router(predict_router, tags=["Price Prediction"])
+app.include_router(health_router, tags=["Health Check"])
 
 
 # Allow your Expo App to connect (restricted origins when credentials are allowed)
@@ -62,18 +86,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ===========================================================
-#                      API ROUTES
-# ===========================================================
+
 
 @app.get("/")
 def root():
     return {"message": "Real Estate Price Predictor API", "status": "running"}
-
-
-# ===========================================================
-#              AUTHENTICATION ENDPOINTS
-# ===========================================================
 
 @app.post("/auth/signup")
 async def signup(user_data: UserSignUp):

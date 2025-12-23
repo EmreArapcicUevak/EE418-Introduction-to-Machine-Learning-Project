@@ -50,15 +50,16 @@ async def get_listings_v2(
     - Supports multi-source querying (olx, nekretnine, or all)
     - Rich filtering options including search
     - Pagination support
+    - ##################Hard-coded, olx data only filtered
     """
     try:
         # Determine table/view to query
         if source == "olx":
             table = "listings_olx"
         elif source == "nekretnine":
-            table = "listings_nekretnine"
+            table = "listings_olx"
         else:
-            table = "all_listings"
+            table = "listings_olx"
         
         # Build query
         query = supabase.table(table).select("*", count="exact")
@@ -122,6 +123,7 @@ async def get_listings_v2(
         
         # Add source field to each listing if querying from individual tables
         data = response.data
+        
         if source in ["olx", "nekretnine"]:
             for listing in data:
                 listing["source"] = source
