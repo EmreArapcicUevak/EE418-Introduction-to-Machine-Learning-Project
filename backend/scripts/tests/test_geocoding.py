@@ -5,7 +5,7 @@ Test Google Maps geocoding for Sarajevo addresses
 
 import os
 from dotenv import load_dotenv
-from scrapers.nekretnine_scraper import NekretnineScraper
+from scripts.scrapers.nekretnine_scraper import NekretnineScraper
 
 # Load environment variables from .env file
 load_dotenv()

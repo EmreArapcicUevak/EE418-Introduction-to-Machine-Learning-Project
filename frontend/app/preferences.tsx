@@ -5,8 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { supabase } from '@/services/supabase'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.199.127:8000'
+import { API_URL } from '@/constants/config'
 
 export default function PreferencesScreen() {
   const { user } = useAuth()

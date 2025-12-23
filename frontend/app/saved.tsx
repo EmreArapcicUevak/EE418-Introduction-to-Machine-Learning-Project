@@ -56,7 +56,7 @@ export default function SavedListingsScreen() {
     try {
       const result = await getFavorites()
       if (result.success && result.favorites) {
-        setFavorites(result.favorites)
+        setFavorites(result.favorites as Favorite[])
       } else {
         console.error('Failed to load favorites:', result.error)
         setFavorites([])
@@ -117,8 +117,7 @@ export default function SavedListingsScreen() {
       year_built: item.year_built,
       property_type: item.property_type || '',
       ad_type: item.ad_type || '',
-      equipment: item.equipment || '',
-      listing_id: item.listing_id
+      equipment: item.equipment || ''
     }
 
     return (
@@ -181,7 +180,7 @@ export default function SavedListingsScreen() {
           <Text style={styles.emptyTitle}>No Saved Listings</Text>
           <Text style={styles.emptyText}>
             Browse properties and save your favorites{'\n'}
-            They'll appear here for easy access
+            They&apos;ll appear here for easy access
           </Text>
           <TouchableOpacity 
             style={styles.browseButton}
@@ -207,7 +206,6 @@ export default function SavedListingsScreen() {
           onRefresh={loadFavorites}
           refreshing={loading}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={420}
         />
       )}
     </View>

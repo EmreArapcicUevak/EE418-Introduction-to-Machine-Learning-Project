@@ -18,10 +18,19 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface MunicipalityStats {
   municipality: string;
-  count: number;
-  avg_price: number;
-  avg_size: number;
-  price_per_m2: number;
+  total_count: number;
+  prodaja: {
+    count: number;
+    avg_price: number;
+    avg_size: number;
+    price_per_m2: number;
+  };
+  iznajmljivanje: {
+    count: number;
+    avg_price: number;
+    avg_size: number;
+    price_per_m2: number;
+  };
 }
 
 interface MapListing {
@@ -39,13 +48,25 @@ interface MapListing {
 }
 
 interface SummaryStats {
-  total_listings: number;
-  olx_listings: number;
-  nekretnine_listings: number;
-  price_stats: {
-    min: number;
-    max: number;
-    avg: number;
+  prodaja: {
+    total_listings: number;
+    olx_listings: number;
+    nekretnine_listings: number;
+    price_stats: {
+      min: number;
+      max: number;
+      avg: number;
+    };
+  };
+  iznajmljivanje: {
+    total_listings: number;
+    olx_listings: number;
+    nekretnine_listings: number;
+    price_stats: {
+      min: number;
+      max: number;
+      avg: number;
+    };
   };
 }
 
@@ -119,7 +140,8 @@ export default function StatisticsScreen() {
     return `${(price / 1000).toFixed(0)}k KM`;
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num?: number | null) => {
+    if (num === null || num === undefined || Number.isNaN(num)) return "0";
     return num.toLocaleString("bs-BA");
   };
 
@@ -147,6 +169,28 @@ export default function StatisticsScreen() {
       </Marker>
     ));
   }, [mapListings]);
+
+  const summaryTotals = useMemo(() => {
+    if (!summaryStats) return null;
+    const prodaja = summaryStats.prodaja || {
+      total_listings: 0,
+      olx_listings: 0,
+      nekretnine_listings: 0,
+      price_stats: { min: 0, max: 0, avg: 0 },
+    };
+    const iznajmljivanje = summaryStats.iznajmljivanje || {
+      total_listings: 0,
+      olx_listings: 0,
+      nekretnine_listings: 0,
+      price_stats: { min: 0, max: 0, avg: 0 },
+    };
+
+    return {
+      total: prodaja.total_listings + iznajmljivanje.total_listings,
+      prodaja,
+      iznajmljivanje,
+    };
+  }, [summaryStats]);
 
   if (loading) {
     return (
@@ -191,26 +235,26 @@ export default function StatisticsScreen() {
       </View>
 
       {/* Summary Cards */}
-      {summaryStats && (
+      {summaryTotals && (
         <View style={styles.summaryContainer}>
           <StatCard
-            value={formatNumber(summaryStats.total_listings)}
-            label="Total Listings"
+            value={formatNumber(summaryTotals.total)}
+            label="Total Active"
             color="#3b82f6"
           />
           <StatCard
-            value={formatPrice(summaryStats.price_stats.avg)}
-            label="Avg Price"
+            value={formatPrice(summaryTotals.prodaja.price_stats.avg)}
+            label="Avg Sale Price"
             color="#10b981"
           />
           <StatCard
-            value={summaryStats.olx_listings}
-            label="OLX Listings"
+            value={formatNumber(summaryTotals.prodaja.total_listings)}
+            label="Sale Listings"
             color="#8b5cf6"
           />
           <StatCard
-            value={summaryStats.nekretnine_listings}
-            label="Nekretnine"
+            value={formatPrice(summaryTotals.iznajmljivanje.price_stats.avg)}
+            label="Avg Rent Price"
             color="#f59e0b"
           />
         </View>
@@ -290,7 +334,7 @@ export default function StatisticsScreen() {
             title="Listings by Municipality"
             data={municipalityStats.slice(0, 5).map((stat) => ({
               label: stat.municipality,
-              value: stat.count,
+              value: stat.total_count,
               color: "#3b82f6",
             }))}
           />
@@ -298,17 +342,48 @@ export default function StatisticsScreen() {
 
         {/* Detailed Cards */}
         <View style={styles.cardsContainer}>
-          {municipalityStats.slice(0, 8).map((stat, index) => (
-            <PriceCard
-              key={stat.municipality}
-              municipality={stat.municipality}
-              avgPrice={stat.avg_price}
-              avgSize={stat.avg_size}
-              pricePerM2={stat.price_per_m2}
-              count={stat.count}
-              rank={index + 1}
-            />
-          ))}
+          {municipalityStats.slice(0, 8).map((stat, index) => {
+            const combinedCount =
+              stat.total_count ||
+              stat.prodaja.count + stat.iznajmljivanje.count;
+
+            const combinedAvgPrice =
+              combinedCount > 0
+                ? (
+                    (stat.prodaja.avg_price * stat.prodaja.count +
+                      stat.iznajmljivanje.avg_price *
+                        stat.iznajmljivanje.count) /
+                    combinedCount
+                  )
+                : 0;
+
+            const combinedAvgSize =
+              combinedCount > 0
+                ? (
+                    (stat.prodaja.avg_size * stat.prodaja.count +
+                      stat.iznajmljivanje.avg_size *
+                        stat.iznajmljivanje.count) /
+                    combinedCount
+                  )
+                : 0;
+
+            const combinedPricePerM2 =
+              combinedAvgSize > 0
+                ? combinedAvgPrice / combinedAvgSize
+                : 0;
+
+            return (
+              <PriceCard
+                key={stat.municipality}
+                municipality={stat.municipality}
+                avgPrice={combinedAvgPrice}
+                avgSize={combinedAvgSize}
+                pricePerM2={combinedPricePerM2}
+                count={combinedCount}
+                rank={index + 1}
+              />
+            );
+          })}
         </View>
       </View>
     </ScrollView>

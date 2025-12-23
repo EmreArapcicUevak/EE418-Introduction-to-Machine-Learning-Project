@@ -12,8 +12,8 @@ from supabase import create_client
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scrapers.olx_scraper import OLXScraper
-from scrapers.nekretnine_scraper import NekretnineScraper
+from scripts.scrapers.olx_scraper import OLXScraper
+from scripts.scrapers.nekretnine_scraper import NekretnineScraper
 
 # Load environment variables
 load_dotenv()

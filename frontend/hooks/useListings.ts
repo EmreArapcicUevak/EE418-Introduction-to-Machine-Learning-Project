@@ -3,7 +3,7 @@
  * Handles fetching, filtering, and pagination
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Listing, ListingFilters, FilterOptions, ListingsParams } from '@/types/listing.types'
 import { getListingsV2, getFilterOptions } from '@/services/api'
 
@@ -48,18 +48,9 @@ export const useListings = (options: UseListingsOptions = {}) => {
     ...initialFilters
   })
 
-  // Load filter options on mount
-  useEffect(() => {
-    loadFilterOptions()
-  }, [])
+  const filtersRef = useRef(filters)
 
-  // Fetch listings when filters change
-  useEffect(() => {
-    fetchListings(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters])
-
-  const loadFilterOptions = async () => {
+  const loadFilterOptions = useCallback(async () => {
     try {
       const result = await getFilterOptions()
       if (result.success) {
@@ -68,41 +59,50 @@ export const useListings = (options: UseListingsOptions = {}) => {
     } catch (err) {
       console.error('Failed to load filter options:', err)
     }
-  }
+  }, [])
 
-  const fetchListings = async (reset: boolean = false) => {
+  const loadingMoreRef = useRef(false)
+  const hasMoreRef = useRef(true)
+  const offsetRef = useRef(0)
+
+  const fetchListings = useCallback(async (reset: boolean = false) => {
     if (reset) {
       setLoading(true)
       setOffset(0)
       setHasMore(true)
+      hasMoreRef.current = true
+      offsetRef.current = 0
     } else {
-      if (!hasMore || loadingMore) return
+      if (!hasMoreRef.current || loadingMoreRef.current) return
       setLoadingMore(true)
+      loadingMoreRef.current = true
     }
 
     setError('')
 
     try {
-      const currentOffset = reset ? 0 : offset
+      const currentOffset = reset ? 0 : offsetRef.current
 
       // Build query parameters
+      const currentFilters = filtersRef.current
+
       const params: ListingsParams = {
         limit: pageSize,
         offset: currentOffset,
-        source: filters.source
+        source: currentFilters.source
       }
 
-      if (filters.search) params.search = filters.search
-      if (filters.priceMin) params.price_min = Number(filters.priceMin)
-      if (filters.priceMax) params.price_max = Number(filters.priceMax)
-      if (filters.municipality) params.municipality = filters.municipality
-      if (filters.propertyType) params.property_type = filters.propertyType
-      if (filters.adType) params.ad_type = filters.adType
-      if (filters.roomsMin) params.rooms_min = Number(filters.roomsMin)
-      if (filters.roomsMax) params.rooms_max = Number(filters.roomsMax)
-      if (filters.sizeMin) params.size_min = Number(filters.sizeMin)
-      if (filters.sizeMax) params.size_max = Number(filters.sizeMax)
-      if (filters.dealScoreMin) params.deal_score_min = Number(filters.dealScoreMin)
+      if (currentFilters.search) params.search = currentFilters.search
+      if (currentFilters.priceMin) params.price_min = Number(currentFilters.priceMin)
+      if (currentFilters.priceMax) params.price_max = Number(currentFilters.priceMax)
+      if (currentFilters.municipality) params.municipality = currentFilters.municipality
+      if (currentFilters.propertyType) params.property_type = currentFilters.propertyType
+      if (currentFilters.adType) params.ad_type = currentFilters.adType
+      if (currentFilters.roomsMin) params.rooms_min = Number(currentFilters.roomsMin)
+      if (currentFilters.roomsMax) params.rooms_max = Number(currentFilters.roomsMax)
+      if (currentFilters.sizeMin) params.size_min = Number(currentFilters.sizeMin)
+      if (currentFilters.sizeMax) params.size_max = Number(currentFilters.sizeMax)
+      if (currentFilters.dealScoreMin) params.deal_score_min = Number(currentFilters.dealScoreMin)
 
       const result = await getListingsV2(params)
 
@@ -111,9 +111,9 @@ export const useListings = (options: UseListingsOptions = {}) => {
       }
 
       const data = result.data || []
-      const total = result.total || 0
+      const total = typeof result.total === 'number' ? result.total : undefined
 
-      setTotalCount(total)
+      setTotalCount(total ?? data.length)
 
       if (reset) {
         setListings(data)
@@ -121,28 +121,45 @@ export const useListings = (options: UseListingsOptions = {}) => {
         setListings(prev => [...prev, ...data])
       }
 
-      setOffset(currentOffset + pageSize)
-      setHasMore(data.length === pageSize && currentOffset + data.length < total)
+      const nextOffset = currentOffset + data.length
+      offsetRef.current = nextOffset
+      setOffset(nextOffset)
+
+      const moreAvailable = data.length === pageSize && (total === undefined
+        ? true
+        : nextOffset < total)
+      hasMoreRef.current = moreAvailable
+      setHasMore(moreAvailable)
     } catch (err) {
       console.error(err)
       setError('Failed to load listings')
     } finally {
       setLoading(false)
       setLoadingMore(false)
+      loadingMoreRef.current = false
     }
-  }
+  }, [pageSize])
+
+  // Load filter options on mount
+  useEffect(() => {
+    loadFilterOptions()
+  }, [loadFilterOptions])
+
+  // Fetch listings when filters change
+  useEffect(() => {
+    filtersRef.current = filters
+    fetchListings(true)
+  }, [fetchListings, filters])
 
   const loadMore = useCallback(() => {
     if (!loadingMore && hasMore) {
       fetchListings(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingMore, hasMore])
+  }, [fetchListings, hasMore, loadingMore])
 
   const refresh = useCallback(() => {
     fetchListings(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters])
+  }, [fetchListings])
 
   const clearFilters = useCallback(() => {
     setFilters({

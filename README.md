@@ -1,204 +1,108 @@
-# Real Estate Price Predictor App
+# Real Estate Price Predictor
 
-A full-stack application for predicting real estate prices in Sarajevo, Bosnia and Herzegovina, with user authentication and personalized recommendations.
+Full-stack app for Sarajevo real estate: scrapes listings, cleans and stores them in Supabase, serves a FastAPI backend, and ships a React Native (Expo) client with maps, statistics, search, and price prediction.
 
-## ✨ Features
+## Features
+- Supabase-authenticated users, profiles, saved listings, preferences, and prediction history.
+- Listings from multiple sources (OLX, Nekretnine) with deal-score and price-per-m² logic.
+- Statistics and map views (by municipality, ad type), recommendation feed, and filters.
+- Data hygiene utilities: drop bad coordinates, normalize municipalities, clean Supabase tables.
 
-### Core Features
-- 🔐 **User Authentication** - Secure signup/signin with Supabase Auth
-- 👤 **User Profiles** - Personalized profiles with search preferences
-- 🏠 **Price Prediction** - AI-powered real estate price estimation
-- 📍 **Map Integration** - Location-based property selection with GPS coordinates
-- ⭐ **Saved Listings** - Favorite properties for later review
-- 🎯 **Smart Recommendations** - Personalized listings based on preferences
-- 📊 **Prediction History** - Track all your price predictions
-- 💾 **Cloud Storage** - All data securely stored in Supabase
-- 🎨 **Modern UI** - Beautiful gradient design with dark mode support
-
-### 🆕 Enhanced Property Data (NEW!)
-- **🗺️ GPS Coordinates** - Precise location data for map visualization
-- **🏢 Rich Property Details** - 20+ additional fields including:
-  - Full address extraction
-  - Number of bathrooms
-  - Property orientation
-  - Floor type
-  - Year built
-  - Publication date
-- **✅ Amenity Detection** - Automatic detection of:
-  - Elevator/Lift
-  - Garage
-  - Parking space
-  - Balcony
-  - Internet connection
-  - Cable TV
-  - Basement/Attic
-- **🔍 Advanced Filtering** - Filter by amenities and location
-- **📏 Distance Search** - Find properties within X km of a location
-- **🧠 Smart Scraping** - Adaptive extraction that handles varying listing formats
-
-## 🏗️ Project Structure
-
+## Project Structure
 ```
-price-predictor-app/
-├── backend/              # Python FastAPI backend
-│   ├── data/            # CSV datasets and data files
-│   ├── models/          # ML models (future)
-│   ├── routes/          # API route handlers (future)
-│   ├── utils/           # Helper functions (future)
-│   ├── main.py          # FastAPI application entry point
-│   ├── requirements.txt # Python dependencies
-│   ├── .env            # Environment variables (not in git)
-│   └── .gitignore      # Python-specific ignores
-│
-├── frontend/            # React Native Expo app
-│   ├── app/            # App screens (Expo Router)
-│   │   ├── (tabs)/    # Tab navigation screens
-│   │   ├── _layout.tsx
-│   │   └── modal.tsx
-│   ├── assets/         # Images, fonts, etc.
-│   ├── components/     # Reusable React components
-│   ├── constants/      # Theme and constants
-│   ├── hooks/          # Custom React hooks
-│   ├── package.json    # Node dependencies
-│   └── .gitignore      # Frontend-specific ignores
-│
-├── .gitignore          # Root-level ignores (OS, IDE files)
-└── README.md           # This file
+backend/
+  app/                # FastAPI application
+    api/              # Routers (enhanced listings, favorites, statistics)
+    core/             # Settings/auth bootstrap
+    db/               # Supabase helpers
+    models/           # Pydantic schemas
+    services/         # Auth/service utilities
+    main.py           # FastAPI entrypoint
+  scripts/            # Maintenance and scraping utilities
+    scrapers/         # OLX / Nekretnine scrapers and helpers
+    tests/            # Pytest-based script tests
+    data/             # Local CSVs (gitignored if large)
+    municipality_mapper.py
+    clean_supabase_municipalities.py
+    clean_supabase_coordinates.py
+    print_municipalities.py
+  requirements.txt
+
+frontend/             # React Native (Expo Router) client
+  app/                # Screens (tabs, modals, statistics, listings, etc.)
+  components/         # UI components (cards, charts, map pieces)
+  hooks/              # Data-fetching hooks (useListings, etc.)
+  constants/          # API URL, theme
+  services/           # API clients
+  SCALABLE_ARCHITECTURE.md
+  package.json
 ```
 
-## 🚀 Getting Started
+## Backend Setup
+Prereqs: Python 3.11+ (tested with 3.14), Supabase project, `pip`.
 
-### Prerequisites
-
-- **Backend**: Python 3.14+
-- **Frontend**: Node.js 18+, Expo CLI
-- **Database**: Supabase account
-
-### Backend Setup
-
+1) Install deps
 ```bash
 cd backend
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Configure environment variables
-# Add your Supabase credentials to .env file
-# SUPABASE_URL=your_supabase_url
-# SUPABASE_KEY=your_supabase_anon_key
-
-# Start the development server
-python3 -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+2) Env (`backend/.env`)
+```
+SUPABASE_URL=...
+SUPABASE_KEY=...                 # anon key
+SUPABASE_SERVICE_ROLE_KEY=...    # service key (needed for admin ops)
+GOOGLE_MAPS_API_KEY=...          # optional: geocoding in scrapers
+```
+3) Run API
+```bash
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Frontend Setup
+### Helpful backend scripts
+- Clean Supabase municipalities (maps + drops unknowns):  
+  `python backend/scripts/clean_supabase_municipalities.py --table listings_olx --table listings_nekretnine --apply`
+- Clean Supabase coordinates (remove null/zero lat/long):  
+  `python backend/scripts/clean_supabase_coordinates.py`
+- Map/clean municipalities locally and write CSV:  
+  `python backend/scripts/municipality_mapper.py --csv backend/scripts/data/flats.csv`
+- Print municipality counts (Supabase or CSV):  
+  `python backend/scripts/print_municipalities.py --table all_listings --categories`
+- Scraper tests:  
+  `pytest backend/scripts/tests`
 
+## Frontend Setup
+Prereqs: Node 18+, npm, Expo CLI.
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start Expo development server
 npx expo start --tunnel
-
-# Or for local network
-npx expo start
 ```
+Configure API URL in `frontend/.env` or `frontend/constants/config.ts` (e.g., `API_URL=http://localhost:8000` when running locally).
 
-## 📡 API Endpoints
+## Key API routes (FastAPI)
+- Auth: `POST /auth/signup`, `POST /auth/signin`, `GET /auth/me`
+- Listings: `GET /listings`, `GET /listings/{id}`, `GET /listings/recommended`
+- Favorites: `POST /saved-listings`, `GET /saved-listings`, `DELETE /saved-listings/{id}`
+- Predictions: `POST /predict`, `GET /predictions`
+- Statistics (v2):
+  - `/api/v2/statistics/summary`
+  - `/api/v2/statistics/by-municipality` (split by ad_type; unknowns dropped or inferred)
+  - `/api/v2/statistics/map-data`
+  - `/api/v2/statistics/price-trends`
 
-### Authentication
-- `POST /auth/signup` - Register new user
-- `POST /auth/signin` - Login user  
-- `GET /auth/me` - Get current user profile
+## Data hygiene rules
+- Coordinates: rows with missing/zero lat/long are removed before use.
+- Municipalities: normalized via `municipality_mapper`; unmapped values are dropped or set inactive in Supabase cleaners.
+- Ad type inference: unknown ad_type entries with price-per-m² above the minimum `Prodaja` threshold are treated as `Prodaja`, others are excluded from stats.
 
-### Predictions
-- `POST /predict` - Predict property price (optional auth)
-- `GET /predictions` - Get user's prediction history (auth required)
+## Testing
+- Backend scripts/tests: `pytest backend/scripts/tests`
+- (Add more FastAPI/unit tests as needed.)
 
-### Listings
-- `GET /listings` - Get all property listings
-- `GET /listings/recommended` - Get personalized recommendations (auth required)
-- `POST /saved-listings` - Save listing to favorites (auth required)
-- `GET /saved-listings` - Get saved listings (auth required)
-
-### Profile
-- `PUT /profile` - Update user profile
-- `PUT /profile/preferences` - Set search preferences
-
-See [AUTHENTICATION_GUIDE.md](./AUTHENTICATION_GUIDE.md) for detailed API documentation.
-
-## 🗄️ Database Schema
-
-The app uses Supabase (PostgreSQL) with the following tables:
-
-### `user_profiles`
-User account information and preferences
-- `user_id` - Links to Supabase auth
-- `email`, `full_name`, `phone`
-- `preferences` - JSON with search preferences
-
-### `user_interests`
-User activities (saved listings, searches)
-- `user_id` - Links to user
-- `interest_type` - Type of activity
-- `data` - JSON with activity details
-
-### `predictions`
-Property price predictions
-- `user_id` - Links to user (null for anonymous)
-- Property features (location, size, condition, etc.)
-- `predicted_price`
-
-### `listings`
-Real estate property listings scraped from multiple sources
-- Property details (title, price, size, rooms)
-- **🆕 Geographic data** (latitude, longitude)
-- **🆕 Property details** (address, bathrooms, orientation, floor_type, year_built)
-- **🆕 Amenities** (has_garage, has_elevator, has_balcony, has_parking, has_internet, has_cable_tv, has_basement)
-- **🆕 Flexible storage** (extra_fields JSONB for variable data)
-- Multiple images per listing
-- Deal scores and analysis
-
-See [backend/database_auth_setup.sql](./backend/database_auth_setup.sql) for complete schema.
-
-## 🕷️ Web Scraping System
-
-### Overview
-The app includes an advanced web scraping system that extracts property data from multiple sources:
-
-- **OLX Bosnia** - Primary source with 20+ extracted fields per listing
-- **Adaptive extraction** - Automatically handles varying HTML structures
-- **Multi-image support** - Extracts all property photos from carousels
-- **Geographic extraction** - Parses GPS coordinates from Google Maps embeds
-- **Smart field mapping** - Automatically categorizes and normalizes property attributes
-
-### Running the Scraper
-
-```bash
-cd backend
-
-# Quick test (2 pages)
-python sync_service_supabase.py --source olx_ba --max-pages 2
-
-# Full sync (all pages)
-python sync_service_supabase.py --source olx_ba --max-pages 10
-```
-
-### Enhanced Fields System
-
-The scraper now extracts **20+ additional property fields**:
-
-**Geographic Data:**
-- GPS coordinates (latitude/longitude) from Google Maps embeds
-- Full street address
-
-**Property Details:**
-- Number of bathrooms
-- Primary orientation (North, South, East, West)
-- Floor type (Parquet, Tiles, etc.)
-- Year built
+## Notes
+- Supabase service key is required for admin ops (sync/clean). Use anon key for client-only reads.
+- When running Expo against a local backend, ensure devices can reach your host IP/port or use the tunnel option.
 - Publication date
 
 **Amenities (Boolean flags):**

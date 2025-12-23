@@ -5,8 +5,7 @@
 
 import { DataSource, Listing } from '@/types/listing.types'
 import { supabase } from './supabase'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'
+import { API_URL } from '@/constants/config'
 
 export interface FavoriteStatus {
   isFavorite: boolean

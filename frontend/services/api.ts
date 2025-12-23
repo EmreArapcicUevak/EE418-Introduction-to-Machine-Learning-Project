@@ -1,6 +1,5 @@
+import { API_URL } from '@/constants/config'
 import { supabase } from './supabase'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.199.127:8000'
 
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()

@@ -240,86 +240,142 @@ async def get_statistics_summary():
     """
     Get overall market statistics
     """
+    # ...existing code...
     try:
-        # Get counts by source
-        olx_count = supabase.table("listings_olx").select("id", count="exact").eq("is_active", True).execute()
-        nekretnine_count = supabase.table("listings_nekretnine").select("id", count="exact").eq("is_active", True).execute()
-        
-        # Get price statistics
-        all_listings = supabase.table("all_listings").select("price_numeric, square_m2, municipality").eq("is_active", True).execute()
-        
-        prices = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric")]
-        
+        # Get counts by source and ad_type
+        olx_prodaja = supabase.table("listings_olx").select("id", count="exact").eq("is_active", True).eq("ad_type", "Prodaja").execute()
+        olx_iznajmljivanje = supabase.table("listings_olx").select("id", count="exact").eq("is_active", True).eq("ad_type", "Iznajmljivanje").execute()
+        nekretnine_prodaja = supabase.table("listings_nekretnine").select("id", count="exact").eq("is_active", True).eq("ad_type", "Prodaja").execute()
+        nekretnine_iznajmljivanje = supabase.table("listings_nekretnine").select("id", count="exact").eq("is_active", True).eq("ad_type", "Iznajmljivanje").execute()
+
+        # Get price statistics by ad_type
+        all_listings = supabase.table("all_listings").select("price_numeric, ad_type, id").eq("is_active", True).execute()
+        prices_prodaja = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Prodaja"]
+        prices_iznajmljivanje = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Iznajmljivanje"]
+
         stats = {
-            "total_listings": len(all_listings.data),
-            "olx_listings": olx_count.count if hasattr(olx_count, 'count') else 0,
-            "nekretnine_listings": nekretnine_count.count if hasattr(nekretnine_count, 'count') else 0,
-            "price_stats": {
-                "min": min(prices) if prices else 0,
-                "max": max(prices) if prices else 0,
-                "avg": sum(prices) / len(prices) if prices else 0
+            "prodaja": {
+                "total_listings": (olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0) + (nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0),
+                "olx_listings": olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0,
+                "nekretnine_listings": nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0,
+                "price_stats": {
+                    "min": min(prices_prodaja) if prices_prodaja else 0,
+                    "max": max(prices_prodaja) if prices_prodaja else 0,
+                    "avg": sum(prices_prodaja) / len(prices_prodaja) if prices_prodaja else 0
+                }
+            },
+            "iznajmljivanje": {
+                "total_listings": (olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0) + (nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0),
+                "olx_listings": olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0,
+                "nekretnine_listings": nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0,
+                "price_stats": {
+                    "min": min(prices_iznajmljivanje) if prices_iznajmljivanje else 0,
+                    "max": max(prices_iznajmljivanje) if prices_iznajmljivanje else 0,
+                    "avg": sum(prices_iznajmljivanje) / len(prices_iznajmljivanje) if prices_iznajmljivanje else 0
+                }
             }
         }
-        
+
         return {
             "success": True,
             "data": stats
         }
-    
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    # ...existing code...
 
 
 @router.get("/api/v2/statistics/by-municipality")
 async def get_municipality_stats():
     """
-    Get statistics grouped by municipality
+    Get statistics grouped by municipality, split by ad_type (Prodaja/Iznajmljivanje).
     """
     try:
-        listings = supabase.table("all_listings").select("municipality, price_numeric, square_m2").eq("is_active", True).execute()
-        
-        # Group by municipality
+        listings_resp = (
+            supabase.table("all_listings")
+            .select("municipality, price_numeric, square_m2, ad_type")
+            .eq("is_active", True)
+            .execute()
+        )
+
+        listings = listings_resp.data or []
+
+        # Find minimum price_per_m2 among Prodaja to help infer unknowns
+        prodaja_ppm = []
+        for item in listings:
+            if item.get("ad_type") == "Prodaja":
+                price = item.get("price_numeric")
+                size = item.get("square_m2")
+                if price and size:
+                    prodaja_ppm.append(price / size)
+        min_prodaja_ppm = min(prodaja_ppm) if prodaja_ppm else None
+
         municipality_stats = {}
-        for listing in listings.data:
+        for listing in listings:
             muni = listing.get("municipality", "Unknown")
-            if muni not in municipality_stats:
-                municipality_stats[muni] = {
-                    "count": 0,
-                    "prices": [],
-                    "sizes": []
-                }
-            
-            municipality_stats[muni]["count"] += 1
-            
-            if listing.get("price_numeric"):
-                municipality_stats[muni]["prices"].append(listing["price_numeric"])
-            
-            if listing.get("square_m2"):
-                municipality_stats[muni]["sizes"].append(listing["square_m2"])
-        
-        # Calculate averages
-        result = []
-        for muni, data in municipality_stats.items():
-            avg_price = sum(data["prices"]) / len(data["prices"]) if data["prices"] else 0
-            avg_size = sum(data["sizes"]) / len(data["sizes"]) if data["sizes"] else 0
+            ad_type = listing.get("ad_type")
+            price = listing.get("price_numeric")
+            size = listing.get("square_m2")
+
+            # Infer or skip unknown ad_type
+            if not ad_type or ad_type == "Unknown":
+                if price and size and size > 0 and min_prodaja_ppm is not None:
+                    price_per_m2 = price / size
+                    if price_per_m2 >= min_prodaja_ppm:
+                        ad_type = "Prodaja"
+                    else:
+                        # Drop unknowns that don't meet Prodaja threshold
+                        continue
+                else:
+                    # Drop unknowns without enough data to decide
+                    continue
+
+            bucket = municipality_stats.setdefault(
+                muni,
+                {
+                    "Prodaja": {"count": 0, "prices": [], "sizes": []},
+                    "Iznajmljivanje": {"count": 0, "prices": [], "sizes": []},
+                },
+            )
+
+            target = bucket["Prodaja"] if ad_type == "Prodaja" else bucket["Iznajmljivanje"]
+            target["count"] += 1
+            if price:
+                target["prices"].append(price)
+            if size:
+                target["sizes"].append(size)
+
+        def summarize(entry):
+            avg_price = sum(entry["prices"]) / len(entry["prices"]) if entry["prices"] else 0
+            avg_size = sum(entry["sizes"]) / len(entry["sizes"]) if entry["sizes"] else 0
             price_per_m2 = avg_price / avg_size if avg_size > 0 else 0
-            
-            result.append({
-                "municipality": muni,
-                "count": data["count"],
+            return {
+                "count": entry["count"],
                 "avg_price": round(avg_price, 2),
                 "avg_size": round(avg_size, 2),
-                "price_per_m2": round(price_per_m2, 2)
-            })
-        
-        # Sort by count
-        result.sort(key=lambda x: x["count"], reverse=True)
-        
-        return {
-            "success": True,
-            "data": result
-        }
-    
+                "price_per_m2": round(price_per_m2, 2),
+            }
+
+        result = []
+        for muni, data in municipality_stats.items():
+            prodaja = summarize(data["Prodaja"])
+            iznajmljivanje = summarize(data["Iznajmljivanje"])
+            total_count = prodaja["count"] + iznajmljivanje["count"]
+
+            result.append(
+                {
+                    "municipality": muni,
+                    "total_count": total_count,
+                    "prodaja": prodaja,
+                    "iznajmljivanje": iznajmljivanje,
+                }
+            )
+
+        result.sort(key=lambda x: x["total_count"], reverse=True)
+
+        return {"success": True, "data": result}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -18,8 +18,9 @@ from supabase import create_client, Client
 # Add scrapers directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scrapers'))
 
-from backend.scrapers.olx_scraper import OLXScraper
-from scrapers.nekretnine_scraper import NekretnineScraper
+from scripts.scrapers.olx_scraper import OLXScraper
+from scripts.scrapers.nekretnine_scraper import NekretnineScraper
+
 
 # Load environment variables
 load_dotenv()

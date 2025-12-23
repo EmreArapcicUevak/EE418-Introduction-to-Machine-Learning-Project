@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 import {
-  PredictionRecord,
   usePredictionHistory,
 } from "../../hooks/use-prediction-history";
 import { useAuth } from "@/contexts/AuthContext";

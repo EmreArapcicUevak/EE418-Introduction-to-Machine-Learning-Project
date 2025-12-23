@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitAny": false,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "types": ["jest", "react-native", "react-native/types/modules", "expo-router/types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["frontend/*"]
+    }
+  },
+  "include": ["./"],
+  "exclude": ["node_modules", "dist", "build"]
+}

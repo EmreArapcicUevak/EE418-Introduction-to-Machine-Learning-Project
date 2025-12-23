@@ -12,7 +12,7 @@ from supabase import Client
 import os
 from dotenv import load_dotenv
 from supabase import create_client
-from auth import AuthService
+from app.services.auth import AuthService
 
 load_dotenv()
 
