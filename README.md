@@ -60,13 +60,25 @@ python src/scrape.py
 
 This will save the dataset as `data/sarajevo_flats.csv`.
 
-### 2. Clean / preprocess data (optional)
+### 2. Clean / preprocess data
+
+The data cleaning pipeline implements principled transformations based on feature analysis:
 
 ```bash
-python src/clean_data.py
+python src/clean_data.py data/raw_input.csv data/cleaned_output.csv --verbose
 ```
 
-This script will format prices, sizes, and handle missing values.
+This script applies the following transformations:
+- Converts categorical variables to category dtype for efficiency
+- Removes redundant columns (property_type with synonymous values)
+- Fixes categorical outliers (removes incorrect condition values)
+- Merges rare heating categories (Wood → Other)
+- Removes municipalities with negligible representation (Ilijaš, Hadžići)
+- Caps floor values labeled as "20+" to 20
+- Removes rows with missing prices or rooms
+- Drops latitude/longitude columns due to data quality concerns
+
+For more details on the data cleaning rationale, see the [feature_analysis notebook](notebooks/feature_analysis.ipynb).
 
 ### 3. Train regression model
 
