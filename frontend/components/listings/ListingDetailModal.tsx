@@ -24,7 +24,6 @@ import { Listing } from '@/types/listing.types'
 import { SourceBadge } from './SourceBadge'
 import {
   formatPrice,
-  formatPriceEur,
   formatRooms,
   formatSquareMeters,
   getDealScoreColor,
@@ -152,8 +151,8 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                 {listing.price_numeric ? formatPrice(listing.price_numeric) : 'Price on request'}
               </Text>
               <View style={styles.priceDetailsRow}>
-                {listing.price_numeric ? (
-                  <Text style={styles.priceEur}>{formatPriceEur(listing.price_numeric)}</Text>
+                {listing.predicted_price ? (
+                  <Text style={styles.predictedPrice}>{listing.predicted_price} KM</Text>
                 ) : null}
                 {(listing.square_m2 && listing.price_numeric) ? (
                   <>
@@ -219,7 +218,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Property Details</Text>
               {listing.heating ? <InfoRow icon="flame" label="Heating" value={listing.heating} /> : null}
-              {listing.level != null ? <InfoRow icon="layers" label="Floor" value={listing.level} /> : null}
+              {listing.level != null ? <InfoRow icon="layers" label="Floor" value={listing.level.toString()} /> : null}
               {listing.bathrooms != null ? (
                 <InfoRow icon="water" label="Bathrooms" value={listing.bathrooms.toString()} />
               ) : null}
@@ -270,7 +269,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                       longitude: listing.longitude
                     }}
                     title={listing.title || 'Property Location'}
-                    description={listing.municipality}
+                    description={listing.municipality ?? undefined}
                   />
                 </MapView>
               </View>
@@ -424,7 +423,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 4
   },
-  priceEur: {
+  predictedPrice: {
     fontSize: 16,
     color: '#666',
     fontWeight: '500'

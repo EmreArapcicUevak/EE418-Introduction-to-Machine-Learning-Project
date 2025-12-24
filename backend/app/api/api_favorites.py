@@ -101,10 +101,8 @@ async def get_favorites(
     Uses the get_user_favorites() database function
     """
     try:
-        print(f"Fetching favorites for user: {current_user['id']}")
         # Call the database function
         response = supabase.rpc("get_user_favorites", {"p_user_id": current_user["id"]}).execute()
-        print(f"Database function response: {response.data}")
         
         # Transform the response to include all listing details
         favorites_data = []

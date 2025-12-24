@@ -30,115 +30,106 @@ supabase: Client = create_client(supabase_url, supabase_key)
 async def get_listings_v2(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    source: Optional[str] = Query(None, regex="^(olx|nekretnine|all)$"),
+
     search: Optional[str] = None,
     municipality: Optional[str] = None,
     property_type: Optional[str] = None,
     ad_type: Optional[str] = None,
+
     price_min: Optional[int] = None,
     price_max: Optional[int] = None,
     rooms_min: Optional[float] = None,
     rooms_max: Optional[float] = None,
     size_min: Optional[float] = None,
     size_max: Optional[float] = None,
+
     deal_score_min: Optional[int] = None,
-    sort_by: str = Query("deal_score", regex="^(deal_score|price|date|size)$"),
-    sort_order: str = Query("desc", regex="^(asc|desc)$"),
+
+    sort_by: str = Query("deal_score", pattern="^(deal_score|price|date|size)$"),
+    sort_order: str = Query("desc", pattern="^(asc|desc)$"),
 ):
     """
-    Get property listings with advanced filtering
-    - Supports multi-source querying (olx, nekretnine, or all)
-    - Rich filtering options including search
-    - Pagination support
-    - ##################Hard-coded, olx data only filtered
+    Fetch OLX property listings with filtering, sorting and pagination.
     """
     try:
-        # Determine table/view to query
-        if source == "olx":
-            table = "listings_olx"
-        elif source == "nekretnine":
-            table = "listings_olx"
-        else:
-            table = "listings_olx"
-        
-        # Build query
+        table = "listings_olx"
+
         query = supabase.table(table).select("*", count="exact")
-        
-        # Apply search filter (searches in title, municipality, and description)
+
+        # text search
         if search:
-            # Use 'or' filter to search across multiple fields
-            search_term = f"%{search}%"
-            query = query.or_(f"title.ilike.{search_term},municipality.ilike.{search_term},description.ilike.{search_term}")
-        
-        # Apply filters
+            term = f"%{search}%"
+            query = query.or_(
+                f"title.ilike.{term},municipality.ilike.{term},description.ilike.{term}"
+            )
+
+        # filters
         if municipality:
             query = query.ilike("municipality", f"%{municipality}%")
-        
+
         if property_type:
             query = query.eq("property_type", property_type)
-        
+
         if ad_type:
             query = query.eq("ad_type", ad_type)
-        
+
         if price_min is not None:
             query = query.gte("price_numeric", price_min)
-        
+
         if price_max is not None:
             query = query.lte("price_numeric", price_max)
-        
+
         if rooms_min is not None:
             query = query.gte("rooms", rooms_min)
-        
+
         if rooms_max is not None:
             query = query.lte("rooms", rooms_max)
-        
+
         if size_min is not None:
             query = query.gte("square_m2", size_min)
-        
+
         if size_max is not None:
             query = query.lte("square_m2", size_max)
-        
+
         if deal_score_min is not None:
             query = query.gte("deal_score", deal_score_min)
-        
-        # Only active listings
+
+        # only active listings
         query = query.eq("is_active", True)
-        
-        # Sorting
-        sort_column_map = {
+
+        # --- sorting ---
+        sort_map = {
             "deal_score": "deal_score",
             "price": "price_numeric",
             "date": "last_updated",
-            "size": "square_m2"
+            "size": "square_m2",
         }
-        
-        sort_column = sort_column_map.get(sort_by, "deal_score")
+
+        sort_column = sort_map.get(sort_by, "deal_score")
+        query = query.not_.is_("deal_score", None)
         query = query.order(sort_column, desc=(sort_order == "desc"))
-        
-        # Pagination
+
+
+        # pagination 
         query = query.range(offset, offset + limit - 1)
-        
-        # Execute query
+
         response = query.execute()
-        
-        # Add source field to each listing if querying from individual tables
-        data = response.data
-        
-        if source in ["olx", "nekretnine"]:
-            for listing in data:
-                listing["source"] = source
-        
+
         return {
             "success": True,
-            "data": data,
-            "count": len(data),
-            "total": response.count if hasattr(response, 'count') else None,
+            "data": response.data or [],
+            "count": len(response.data or []),
+            "total": response.count,
             "offset": offset,
-            "limit": limit
+            "limit": limit,
+            "source": "olx" ## OLX only
         }
-    
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching listings: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch listings: {str(e)}"
+        )
 
 
 @router.get("/api/v2/listings/{source}/{listing_id}")
@@ -194,10 +185,6 @@ async def get_similar_listings(
         if ref.get("municipality"):
             query = query.eq("municipality", ref["municipality"])
         
-        # Similar property type
-        if ref.get("property_type"):
-            query = query.eq("property_type", ref["property_type"])
-        
         # Price range ±20%
         if ref.get("price_numeric"):
             price = ref["price_numeric"]
@@ -252,28 +239,28 @@ async def get_statistics_summary():
 
         # Get price statistics by ad_type
         all_listings = supabase.table("all_listings").select("price_numeric, ad_type, id").eq("is_active", True).execute()
-        prices_prodaja = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Prodaja"]
-        prices_iznajmljivanje = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Iznajmljivanje"]
+        prices_sale = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Sale"]
+        prices_rent = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Rent"]
 
         stats = {
-            "prodaja": {
+            "sale": {
                 "total_listings": (olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0) + (nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0),
                 "olx_listings": olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0,
                 "nekretnine_listings": nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0,
                 "price_stats": {
-                    "min": min(prices_prodaja) if prices_prodaja else 0,
-                    "max": max(prices_prodaja) if prices_prodaja else 0,
-                    "avg": sum(prices_prodaja) / len(prices_prodaja) if prices_prodaja else 0
+                    "min": min(prices_sale) if prices_sale else 0,
+                    "max": max(prices_sale) if prices_sale else 0,
+                    "avg": sum(prices_sale) / len(prices_sale) if prices_sale else 0
                 }
             },
-            "iznajmljivanje": {
+            "rent": {
                 "total_listings": (olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0) + (nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0),
                 "olx_listings": olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0,
                 "nekretnine_listings": nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0,
                 "price_stats": {
-                    "min": min(prices_iznajmljivanje) if prices_iznajmljivanje else 0,
-                    "max": max(prices_iznajmljivanje) if prices_iznajmljivanje else 0,
-                    "avg": sum(prices_iznajmljivanje) / len(prices_iznajmljivanje) if prices_iznajmljivanje else 0
+                    "min": min(prices_rent) if prices_rent else 0,
+                    "max": max(prices_rent) if prices_rent else 0,
+                    "avg": sum(prices_rent) / len(prices_rent) if prices_rent else 0
                 }
             }
         }

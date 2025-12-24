@@ -91,8 +91,18 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
             onError={() => setImageError(true)}
           />
         ) : (
-          <View style={[styles.thumbnail, styles.noImage, compact && styles.thumbnailCompact]}>
-            <Ionicons name="image-outline" size={compact ? 24 : 32} color="#ccc" />
+          <View
+            style={[
+              styles.thumbnail,
+              styles.noImage,
+              compact && styles.thumbnailCompact,
+            ]}
+          >
+            <Ionicons
+              name="image-outline"
+              size={compact ? 24 : 32}
+              color="#ccc"
+            />
           </View>
         )}
 
@@ -132,28 +142,35 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
               </Text>
             ) : null}
           </View>
-          
+
           {/* Deal Score Badge */}
-          <View style={[styles.dealBadge, { backgroundColor: dealColor + '20' }]}>
-            <Ionicons
-              name={
-                dealScore >= 90
-                  ? "star"
-                  : dealScore >= 70
-                  ? "star-half"
-                  : "star-outline"
-              }
-              size={14}
-              color={dealColor}
-            />
-            <Text style={[styles.dealScoreText, { color: dealColor }]}>
-              {Math.round(dealScore)}
-            </Text>
-          </View>
+          {dealScore != null && (
+            <View
+              style={[styles.dealBadge, { backgroundColor: dealColor + "20" }]}
+            >
+              <Ionicons
+                name={
+                  dealScore >= 90
+                    ? "star"
+                    : dealScore >= 70
+                    ? "star-half"
+                    : "star-outline"
+                }
+                size={14}
+                color={dealColor}
+              />
+              <Text style={[styles.dealScoreText, { color: dealColor }]}>
+                {Math.round(dealScore)}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Title */}
-        <Text style={[styles.title, compact && styles.titleCompact]} numberOfLines={2}>
+        <Text
+          style={[styles.title, compact && styles.titleCompact]}
+          numberOfLines={2}
+        >
           {listing.title || "No title available"}
         </Text>
 
@@ -162,24 +179,28 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
           {listing.rooms ? (
             <View style={styles.keyDetailItem}>
               <Ionicons name="bed" size={18} color="#667eea" />
-              <Text style={styles.keyDetailText}>{formatRooms(listing.rooms)}</Text>
+              <Text style={styles.keyDetailText}>
+                {formatRooms(listing.rooms)}
+              </Text>
             </View>
           ) : null}
-          
+
           {listing.square_m2 ? (
             <View style={styles.keyDetailItem}>
               <Ionicons name="resize" size={18} color="#667eea" />
-              <Text style={styles.keyDetailText}>{formatSquareMeters(listing.square_m2)}</Text>
+              <Text style={styles.keyDetailText}>
+                {formatSquareMeters(listing.square_m2)}
+              </Text>
             </View>
           ) : null}
-          
+
           {listing.level != null ? (
             <View style={styles.keyDetailItem}>
               <Ionicons name="layers" size={18} color="#667eea" />
               <Text style={styles.keyDetailText}>Floor {listing.level}</Text>
             </View>
           ) : null}
-          
+
           {listing.square_m2 && listing.price_numeric ? (
             <View style={styles.keyDetailItem}>
               <Ionicons name="calculator" size={18} color="#667eea" />
@@ -195,11 +216,11 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
           {listing.municipality ? (
             <DetailRow icon="location" text={listing.municipality} />
           ) : null}
-          
+
           {listing.property_type ? (
             <DetailRow icon="home" text={listing.property_type} />
           ) : null}
-          
+
           {!compact && (listing.condition || listing.heating) ? (
             <DetailRow
               icon="information-circle"
@@ -208,9 +229,10 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
                 .join(" • ")}
             />
           ) : null}
-          
+
           {/* Amenities Row - Only show if any exist */}
-          {!compact && (listing.has_elevator ||
+          {!compact &&
+          (listing.has_elevator ||
             listing.has_balcony ||
             listing.has_parking ||
             listing.has_garage) ? (
@@ -236,14 +258,17 @@ const ListingCardComponent: React.FC<ListingCardProps> = ({
 };
 
 // Memoize component to prevent unnecessary re-renders
-export const ListingCard = React.memo(ListingCardComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.listing.id === nextProps.listing.id &&
-    prevProps.isFavorite === nextProps.isFavorite &&
-    prevProps.compact === nextProps.compact &&
-    prevProps.showSource === nextProps.showSource
-  );
-});
+export const ListingCard = React.memo(
+  ListingCardComponent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.listing.id === nextProps.listing.id &&
+      prevProps.isFavorite === nextProps.isFavorite &&
+      prevProps.compact === nextProps.compact &&
+      prevProps.showSource === nextProps.showSource
+    );
+  }
+);
 
 interface DetailRowProps {
   icon: keyof typeof Ionicons.glyphMap;

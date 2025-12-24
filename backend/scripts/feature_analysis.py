@@ -101,6 +101,9 @@ def main():
         "square_m2",
         "latitude",
         "longitude",
+        "predicted_price",
+        "price_difference",
+        "deal_score"
     ]
     categorical_cols = [
         "ad_type",

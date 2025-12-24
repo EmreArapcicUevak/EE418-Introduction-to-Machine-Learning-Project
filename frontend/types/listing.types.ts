@@ -63,7 +63,6 @@ export interface ListingFilters {
   priceMin: string
   priceMax: string
   municipality: string
-  propertyType: string
   adType: string
   roomsMin: string
   roomsMax: string

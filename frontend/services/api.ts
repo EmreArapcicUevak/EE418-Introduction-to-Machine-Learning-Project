@@ -48,7 +48,6 @@ export async function getUserPredictions(limit = 50) {
 export interface ListingsParams {
   source?: 'all' | 'olx' | 'nekretnine'
   municipality?: string
-  property_type?: string
   ad_type?: string
   price_min?: number
   price_max?: number

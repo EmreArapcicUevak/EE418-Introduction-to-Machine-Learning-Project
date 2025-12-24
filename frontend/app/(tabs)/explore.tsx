@@ -245,20 +245,6 @@ export default function ExploreScreen() {
       )
     }
     
-    if (filters.propertyType) {
-      chips.push(
-        <Chip
-          key="propertyType"
-          mode="flat"
-          style={styles.filterChip}
-          textStyle={styles.filterChipText}
-          onClose={() => setFilters({ ...filters, propertyType: '' })}
-        >
-          {filters.propertyType}
-        </Chip>
-      )
-    }
-    
     if (filters.adType) {
       chips.push(
         <Chip

@@ -37,7 +37,6 @@ export const useListings = (options: UseListingsOptions = {}) => {
     priceMin: '',
     priceMax: '',
     municipality: '',
-    propertyType: '',
     adType: '',
     roomsMin: '',
     roomsMax: '',
@@ -83,26 +82,29 @@ export const useListings = (options: UseListingsOptions = {}) => {
     try {
       const currentOffset = reset ? 0 : offsetRef.current
 
-      // Build query parameters
+      // Build query parameters, skipping empty/NaN values
       const currentFilters = filtersRef.current
+      const toNum = (val: string) => {
+        if (!val) return undefined
+        const num = Number(val)
+        return Number.isFinite(num) ? num : undefined
+      }
 
       const params: ListingsParams = {
         limit: pageSize,
         offset: currentOffset,
-        source: currentFilters.source
+        source: currentFilters.source,
+        search: currentFilters.search || undefined,
+        municipality: currentFilters.municipality || undefined,
+        ad_type: currentFilters.adType || undefined,
+        price_min: toNum(currentFilters.priceMin),
+        price_max: toNum(currentFilters.priceMax),
+        rooms_min: toNum(currentFilters.roomsMin),
+        rooms_max: toNum(currentFilters.roomsMax),
+        size_min: toNum(currentFilters.sizeMin),
+        size_max: toNum(currentFilters.sizeMax),
+        deal_score_min: toNum(currentFilters.dealScoreMin)
       }
-
-      if (currentFilters.search) params.search = currentFilters.search
-      if (currentFilters.priceMin) params.price_min = Number(currentFilters.priceMin)
-      if (currentFilters.priceMax) params.price_max = Number(currentFilters.priceMax)
-      if (currentFilters.municipality) params.municipality = currentFilters.municipality
-      if (currentFilters.propertyType) params.property_type = currentFilters.propertyType
-      if (currentFilters.adType) params.ad_type = currentFilters.adType
-      if (currentFilters.roomsMin) params.rooms_min = Number(currentFilters.roomsMin)
-      if (currentFilters.roomsMax) params.rooms_max = Number(currentFilters.roomsMax)
-      if (currentFilters.sizeMin) params.size_min = Number(currentFilters.sizeMin)
-      if (currentFilters.sizeMax) params.size_max = Number(currentFilters.sizeMax)
-      if (currentFilters.dealScoreMin) params.deal_score_min = Number(currentFilters.dealScoreMin)
 
       const result = await getListingsV2(params)
 
@@ -110,23 +112,8 @@ export const useListings = (options: UseListingsOptions = {}) => {
         throw new Error('Failed to fetch listings')
       }
 
-      const toNum = (val: unknown): number | null => {
-        if (val === undefined || val === null) return null
-        const num = Number(val)
-        return Number.isFinite(num) ? num : null
-      }
+      const data = (result.data || [])
 
-      const data = (result.data || []).map(l => ({
-        ...l,
-        price_numeric: toNum(l.price_numeric),
-        rooms: toNum(l.rooms),
-        square_m2: toNum(l.square_m2),
-        level: toNum(l.level),
-        deal_score: toNum(l.deal_score),
-        predicted_price: toNum(l.predicted_price),
-        price_difference: toNum(l.price_difference),
-      }))
-      console.log("Example listing:", data[0])
       const total = typeof result.total === 'number' ? result.total : undefined
 
       setTotalCount(total ?? data.length)
@@ -184,7 +171,6 @@ export const useListings = (options: UseListingsOptions = {}) => {
       priceMin: '',
       priceMax: '',
       municipality: '',
-      propertyType: '',
       adType: '',
       roomsMin: '',
       roomsMax: '',
