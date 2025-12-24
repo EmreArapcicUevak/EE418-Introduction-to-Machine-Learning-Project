@@ -32,15 +32,15 @@ export async function makePrediction(data: any) {
 
 export async function getUserPredictions(limit = 50) {
   const headers = await getAuthHeaders()
-  
+
   const response = await fetch(`${API_URL}/predictions?limit=${limit}`, {
-    headers
+    headers,
   })
-  
+
   if (!response.ok) {
-    throw new Error('Failed to fetch predictions')
+    throw new Error("Failed to fetch predictions")
   }
-  
+
   return response.json()
 }
 

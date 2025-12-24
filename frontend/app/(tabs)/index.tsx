@@ -61,7 +61,7 @@ export default function HomeScreen() {
         heating,
       });
 
-      setPrice(data.price);
+      setPrice(data.predicted_price);
 
       addRecord(
         {
@@ -149,7 +149,7 @@ export default function HomeScreen() {
               <Text style={styles.coordLabel}>Latitude</Text>
               <TextInput
                 style={styles.coordInput}
-                value={latitude.toString()}
+                value={latitude.toFixed(4)}
                 onChangeText={(text) => {
                   const num = parseFloat(text);
                   if (!isNaN(num)) setLatitude(num);
@@ -163,7 +163,7 @@ export default function HomeScreen() {
               <Text style={styles.coordLabel}>Longitude</Text>
               <TextInput
                 style={styles.coordInput}
-                value={longitude.toString()}
+                value={longitude.toFixed(4)}
                 onChangeText={(text) => {
                   const num = parseFloat(text);
                   if (!isNaN(num)) setLongitude(num);

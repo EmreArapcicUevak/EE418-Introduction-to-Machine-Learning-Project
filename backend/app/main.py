@@ -4,7 +4,7 @@ import joblib
 import pandas as pd
 import numpy as np
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from dotenv import load_dotenv
@@ -91,6 +91,42 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"message": "Real Estate Price Predictor API", "status": "running"}
+
+
+@app.get("/predictions")
+async def get_user_predictions(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: dict = Depends(auth_service.get_current_user),
+):
+    """
+    Return current user's predictions from Supabase.
+    Matches frontend: GET /predictions?limit=50
+    """
+    try:
+        resp = (
+            supabase.table("predictions")
+            .select("*", count="exact")
+            .eq("user_id", current_user["id"])
+            .order("created_at", desc=True)
+            .range(offset, offset + limit - 1)
+            .execute()
+        )
+
+        return {
+            "success": True,
+            "data": resp.data or [],
+            "count": len(resp.data or []),
+            "total": getattr(resp, "count", None),
+            "limit": limit,
+            "offset": offset,
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch predictions: {str(e)}",
+        )
 
 @app.post("/auth/signup")
 async def signup(user_data: UserSignUp):

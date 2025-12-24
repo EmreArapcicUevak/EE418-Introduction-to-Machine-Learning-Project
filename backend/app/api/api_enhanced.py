@@ -22,9 +22,8 @@ supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
 
-# ============================================================
-#              LISTINGS ENDPOINTS
-# ============================================================
+
+
 
 @router.get("/api/v2/listings")
 async def get_listings_v2(

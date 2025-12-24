@@ -1,5 +1,5 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient"
+import { useEffect, useState, useMemo } from "react"
 import {
   ActivityIndicator,
   FlatList,
@@ -8,87 +8,140 @@ import {
   StyleSheet,
   Text,
   View,
-} from "react-native";
-import {
-  usePredictionHistory,
-} from "../../hooks/use-prediction-history";
-import { useAuth } from "@/contexts/AuthContext";
-import { getUserPredictions } from "@/services/api";
+} from "react-native"
+
+import { usePredictionHistory } from "../../hooks/use-prediction-history"
+import { useAuth } from "@/contexts/AuthContext"
+import { getUserPredictions } from "@/services/api"
+
+type NormalizedPrediction = {
+  id: string
+  price: number
+  createdAt: string
+  input: {
+    latitude: number
+    longitude: number
+    square_m2: number
+    rooms: number
+    level: number
+    property_type: string
+    condition: string
+    equipment: string
+    heating: string
+  }
+}
 
 export default function HistoryScreen() {
-  const { history, clearHistory } = usePredictionHistory();
-  const { user } = useAuth();
-  const [serverHistory, setServerHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { history, clearHistory } = usePredictionHistory()
+  const { user } = useAuth()
+
+  const [serverHistory, setServerHistory] = useState<NormalizedPrediction[]>([])
+  const [loading, setLoading] = useState(false)
+
+  /* ------------------------- load server predictions ------------------------- */
+
+  const loadServerHistory = async () => {
+    if (!user) return
+
+    setLoading(true)
+    try {
+      const response = await getUserPredictions()
+
+      const rows = Array.isArray(response.data) ? response.data : []
+
+      const normalized = rows.map((row: any) => ({
+        id: `server-${row.id}`,
+        price: row.predicted_price,
+        createdAt: row.created_at,
+        input: {
+          latitude: row.latitude,
+          longitude: row.longitude,
+          square_m2: row.square_m2,
+          rooms: row.rooms,
+          level: row.level,
+          property_type: row.property_type,
+          condition: row.condition,
+          equipment: row.equipment,
+          heating: row.heating,
+        },
+      }))
+
+      setServerHistory(normalized)
+    } catch (error) {
+      console.error("Failed to load server history:", error)
+      setServerHistory([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (user) {
-      loadServerHistory();
+      loadServerHistory()
     }
-  }, [user]);
+  }, [user])
 
-  const loadServerHistory = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const data = await getUserPredictions();
-      setServerHistory(data);
-    } catch (error) {
-      console.error("Failed to load server history:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  /* ------------------------- normalize local history ------------------------- */
 
-  // Combine local and server history
-  const combinedHistory = user ? serverHistory : history;
+  const localHistory: NormalizedPrediction[] = useMemo(() => {
+    return history.map((item: any, index: number) => ({
+      id: `local-${index}`,
+      price: item.price,
+      createdAt: item.createdAt,
+      input: item.input,
+    }))
+  }, [history])
 
-  const renderItem = ({ item }: { item: any }) => {
-    // Handle both local and server predictions
-    const price = item.price || item.predicted_price;
-    const input = item.input || item;
-    const createdAt = item.createdAt || item.created_at;
-    
-    const date = new Date(createdAt);
+  const combinedHistory = user ? serverHistory : localHistory
+
+  /* ------------------------------ render item ------------------------------- */
+
+  const renderItem = ({ item }: { item: NormalizedPrediction }) => {
+    const date = new Date(item.createdAt)
     const formattedDate = date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    });
+    })
 
     return (
       <LinearGradient colors={["#ffffff", "#f9fafb"]} style={styles.card}>
         <View style={styles.cardHeader}>
           <View>
-            <Text style={styles.price}>{price.toLocaleString()} KM</Text>
+            <Text style={styles.price}>
+              {item.price.toLocaleString()} KM
+            </Text>
             <Text style={styles.priceEur}>
-              ≈ €{(price / 2).toLocaleString()}
+              ≈ €{Math.round(item.price / 2).toLocaleString()}
             </Text>
           </View>
           <Text style={styles.date}>{formattedDate}</Text>
         </View>
+
         <View style={styles.divider} />
+
         <View style={styles.detailsContainer}>
           <Text style={styles.detail}>
-            📍 {input.latitude.toFixed(4)},{" "}
-            {input.longitude.toFixed(4)}
+            📍 {item.input.latitude.toFixed(4)},{" "}
+            {item.input.longitude.toFixed(4)}
           </Text>
           <Text style={styles.detail}>
-            🏠 {input.square_m2} m² • {input.rooms} rooms • Floor{" "}
-            {input.level}
+            🏠 {item.input.square_m2} m² • {item.input.rooms} rooms • Floor{" "}
+            {item.input.level}
           </Text>
           <Text style={styles.detail}>
-            🏢 {input.property_type} • {input.condition}
+            🏢 {item.input.property_type} • {item.input.condition}
           </Text>
           <Text style={styles.detail}>
-            🛋️ {input.equipment} • 🔥 {input.heating}
+            🛋️ {item.input.equipment} • 🔥 {item.input.heating}
           </Text>
         </View>
       </LinearGradient>
-    );
-  };
+    )
+  }
+
+  /* ---------------------------------- UI ---------------------------------- */
 
   return (
     <View style={styles.container}>
@@ -96,18 +149,19 @@ export default function HistoryScreen() {
 
       <LinearGradient
         colors={["#667eea", "#764ba2"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
         style={styles.header}
       >
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.title}>History</Text>
             <Text style={styles.subtitle}>
-              {loading ? "Loading..." : `${combinedHistory.length} predictions`}
+              {loading
+                ? "Loading..."
+                : `${combinedHistory.length} predictions`}
             </Text>
           </View>
-          {combinedHistory.length > 0 && !user && (
+
+          {!user && combinedHistory.length > 0 && (
             <Pressable onPress={clearHistory} style={styles.clearButton}>
               <Text style={styles.clearText}>🗑️ Clear All</Text>
             </Pressable>
@@ -118,30 +172,33 @@ export default function HistoryScreen() {
       {loading ? (
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color="#667eea" />
-          <Text style={styles.emptySubtext}>Loading your predictions...</Text>
+          <Text style={styles.emptySubtext}>
+            Loading your predictions...
+          </Text>
         </View>
       ) : combinedHistory.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>📊</Text>
           <Text style={styles.empty}>No predictions yet</Text>
           <Text style={styles.emptySubtext}>
-            {user 
-              ? "Make your first prediction on the Predict tab!" 
-              : "Sign in to sync your predictions across devices"}
+            {user
+              ? "Make your first prediction on the Predict tab!"
+              : "Sign in to sync predictions across devices"}
           </Text>
         </View>
       ) : (
         <FlatList
           data={combinedHistory}
-          keyExtractor={(item, index) => item.id || `${index}`}
+          keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
       )}
     </View>
-  );
+  )
 }
+
 
 const styles = StyleSheet.create({
   container: {
