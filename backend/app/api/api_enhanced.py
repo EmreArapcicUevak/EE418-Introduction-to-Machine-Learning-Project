@@ -45,8 +45,7 @@ async def get_listings_v2(
 
     deal_score_min: Optional[int] = None,
 
-    sort_by: str = Query("deal_score", pattern="^(deal_score|price|date|size)$"),
-    sort_order: str = Query("desc", pattern="^(asc|desc)$"),
+    sort_by: str = Query("deal-score", pattern="^(deal-score|newest|price-low|price-high)$"),
 ):
     """
     Fetch OLX property listings with filtering, sorting and pagination.
@@ -98,16 +97,24 @@ async def get_listings_v2(
         query = query.eq("is_active", True)
 
         # --- sorting ---
-        sort_map = {
-            "deal_score": "deal_score",
-            "price": "price_numeric",
-            "date": "last_updated",
-            "size": "square_m2",
-        }
+        if sort_by == "deal-score":
+            # Best deals first, hide unscored listings
+            query = query.not_.is_("deal_score", None)
+            query = query.order("deal_score", desc=True)
 
-        sort_column = sort_map.get(sort_by, "deal_score")
-        query = query.not_.is_("deal_score", None)
-        query = query.order(sort_column, desc=(sort_order == "desc"))
+        elif sort_by == "newest":
+            query = query.order("publication_date", desc=True)
+
+        elif sort_by == "price-high":
+            query = query.order("price_numeric", desc=True)
+
+        elif sort_by == "price-low":
+            query = query.order("price_numeric", desc=False)
+
+        else:
+            # fallback: best deals
+            query = query.not_.is_("deal_score", None)
+            query = query.order("deal_score", desc=True)
 
 
         # pagination 
@@ -550,15 +557,15 @@ async def get_filter_options():
     """
     try:
         # Get distinct municipalities
-        municipalities_response = supabase.table("all_listings").select("municipality").eq("is_active", True).execute()
+        municipalities_response = supabase.table("listings_olx").select("municipality").eq("is_active", True).execute()
         municipalities = list(set([l["municipality"] for l in municipalities_response.data if l.get("municipality")]))
         
         # Get distinct property types
-        property_types_response = supabase.table("all_listings").select("property_type").eq("is_active", True).execute()
+        property_types_response = supabase.table("listings_olx").select("property_type").eq("is_active", True).execute()
         property_types = list(set([l["property_type"] for l in property_types_response.data if l.get("property_type")]))
         
         # Get distinct ad types
-        ad_types_response = supabase.table("all_listings").select("ad_type").eq("is_active", True).execute()
+        ad_types_response = supabase.table("listings_olx").select("ad_type").eq("is_active", True).execute()
         ad_types = list(set([l["ad_type"] for l in ad_types_response.data if l.get("ad_type")]))
         
         return {

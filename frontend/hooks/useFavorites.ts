@@ -1,235 +1,229 @@
-/**
- * useFavorites Hook
- * Manages favorite listings state and operations
- */
+import { useState, useEffect, useCallback } from "react";
+import { Alert, DeviceEventEmitter } from "react-native";
+import * as Haptics from "expo-haptics";
+import { Listing } from "@/types/listing.types";
+import * as favoritesService from "@/services/favorites.service";
 
-import { useState, useEffect, useCallback } from 'react'
-import { Alert } from 'react-native'
-import * as Haptics from 'expo-haptics'
-import { Listing } from '@/types/listing.types'
-import * as favoritesService from '@/services/favorites.service'
+
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<Listing[]>([])
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [favorites, setFavorites] = useState<Listing[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Load all favorites from API
-   */
+
+  const makeKey = useCallback(
+    (listing: Listing) => `${listing.id}-${listing.source || "olx"}`,
+    []
+  );
+
+  const rebuildFavoriteIds = useCallback(
+    (list: Listing[]) => new Set(list.map(makeKey)),
+    [makeKey]
+  );
+
+
   const loadFavorites = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const result = await favoritesService.getFavorites()
+      setLoading(true);
+      setError(null);
 
-      if (result.success && result.favorites) {
-        // Ensure favorites is an array
-        const favoritesArray = Array.isArray(result.favorites) ? result.favorites : []
-        setFavorites(favoritesArray)
-        // Create a Set of favorite IDs for quick lookup
-        const ids = new Set(
-          favoritesArray.map((fav) => `${fav.id}-${fav.source}`)
-        )
-        setFavoriteIds(ids)
-      } else {
-        setFavorites([])
-        setFavoriteIds(new Set())
-        setError(result.error || 'Failed to load favorites')
+      const result = await favoritesService.getFavorites();
+
+      if (!result.success || !Array.isArray(result.favorites)) {
+        throw new Error(result.error || "Failed to load favorites");
       }
+
+      // Ensure source is present for keying
+      const normalized = result.favorites.map(fav => ({
+        ...fav,
+        source: fav.source || "olx",
+      }));
+
+      setFavorites(normalized);
+      setFavoriteIds(rebuildFavoriteIds(normalized));
     } catch (err) {
-      console.error('Error loading favorites:', err)
-      setFavorites([])
-      setFavoriteIds(new Set())
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      console.error("Error loading favorites:", err);
+      setFavorites([]);
+      setFavoriteIds(new Set());
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
-
-  /**
-   * Check if a listing is favorited
-   */
+  }, [rebuildFavoriteIds]);
+  
   const isFavorite = useCallback(
-    (listing: Listing): boolean => {
-      const key = `${listing.id}-${listing.source}`
-      return favoriteIds.has(key)
+    (listing: Listing) => {
+      return favoriteIds.has(makeKey(listing));
     },
-    [favoriteIds]
-  )
+    [favoriteIds, makeKey]
+  );
 
-  /**
-   * Toggle favorite status for a listing
-   */
   const toggleFavorite = useCallback(
     async (listing: Listing) => {
-      const wasFavorite = isFavorite(listing)
-      const key = `${listing.id}-${listing.source}`
+      const source = listing.source || "olx";
+      const wasFavorite = favoriteIds.has(`${listing.id}-${source}`);
+      const key = `${listing.id}-${source}`;
 
       // Optimistic update
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
       if (wasFavorite) {
         // Remove from state immediately
         setFavoriteIds((prev) => {
-          const next = new Set(prev)
-          next.delete(key)
-          return next
-        })
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
         setFavorites((prev) =>
           prev.filter(
-            (fav) =>
-              !(fav.id === listing.id && fav.source === listing.source)
+            (fav) => !(fav.id === listing.id && (fav.source || "olx") === source)
           )
-        )
+        );
       } else {
         // Add to state immediately
-        setFavoriteIds((prev) => new Set(prev).add(key))
-        setFavorites((prev) => [...prev, listing])
+        setFavoriteIds((prev) => new Set(prev).add(key));
+        setFavorites((prev) => [...prev, listing]);
       }
 
       // Make API call
       const result = await favoritesService.toggleFavorite(
         listing.id.toString(),
-        listing.source,
+        source,
         wasFavorite
-      )
+      );
 
       if (!result.success) {
         // Revert on error
         if (wasFavorite) {
-          setFavoriteIds((prev) => new Set(prev).add(key))
-          setFavorites((prev) => [...prev, listing])
+          setFavoriteIds((prev) => new Set(prev).add(key));
+          setFavorites((prev) => [...prev, { ...listing, source }]);
         } else {
           setFavoriteIds((prev) => {
-            const next = new Set(prev)
-            next.delete(key)
-            return next
-          })
+            const next = new Set(prev);
+            next.delete(key);
+            return next;
+          });
           setFavorites((prev) =>
             prev.filter(
-              (fav) =>
-                !(fav.id === listing.id && fav.source === listing.source)
+              (fav) => !(fav.id === listing.id && (fav.source || "olx") === source)
             )
-          )
+          );
         }
 
         Alert.alert(
-          'Error',
-          result.error || 'Failed to update favorite status',
-          [{ text: 'OK' }]
-        )
+          "Error",
+          result.error || "Failed to update favorite status",
+          [{ text: "OK" }]
+        );
+      } else {
+        DeviceEventEmitter.emit("favorites-updated");
       }
 
-      return result.success
+      return result.success;
     },
-    [isFavorite]
-  )
+    [favoriteIds]
+  );
 
-  /**
-   * Add a listing to favorites
-   */
+
   const addFavorite = useCallback(
     async (listing: Listing) => {
-      if (isFavorite(listing)) {
-        return true // Already favorited
-      }
+      if (isFavorite(listing)) return true;
 
-      const key = `${listing.id}-${listing.source}`
+      // snapshot
+      const prevFavorites = favorites;
+      const prevIds = favoriteIds;
 
-      // Optimistic update
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-      setFavoriteIds((prev) => new Set(prev).add(key))
-      setFavorites((prev) => [...prev, listing])
+      // optimistic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const nextFavorites = [...favorites, listing];
+      setFavorites(nextFavorites);
+      setFavoriteIds(rebuildFavoriteIds(nextFavorites));
 
-      // API call
-      const result = await favoritesService.addFavorite(listing.id.toString(), listing.source)
+      const result = await favoritesService.addFavorite(
+        listing.id,
+        "olx"
+      );
 
       if (!result.success) {
-        // Revert on error
-        setFavoriteIds((prev) => {
-          const next = new Set(prev)
-          next.delete(key)
-          return next
-        })
-        setFavorites((prev) =>
-          prev.filter(
-            (fav) =>
-              !(fav.id === listing.id && fav.source === listing.source)
-          )
-        )
+        // revert
+        setFavorites(prevFavorites);
+        setFavoriteIds(prevIds);
 
-        Alert.alert('Error', result.error || 'Failed to add favorite', [{ text: 'OK' }])
+        Alert.alert(
+          "Error",
+          result.error || "Failed to add favorite",
+          [{ text: "OK" }]
+        );
+      } else {
+        DeviceEventEmitter.emit("favorites-updated");
       }
 
-      return result.success
+      return result.success;
     },
-    [isFavorite]
-  )
+    [favorites, favoriteIds, isFavorite, rebuildFavoriteIds]
+  );
 
-  /**
-   * Remove a listing from favorites
-   */
+
   const removeFavorite = useCallback(
     async (listing: Listing) => {
-      if (!isFavorite(listing)) {
-        return true // Not favorited
-      }
+      if (!isFavorite(listing)) return true;
 
-      const key = `${listing.id}-${listing.source}`
+      const prevFavorites = favorites;
+      const prevIds = favoriteIds;
 
-      // Optimistic update
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-      setFavoriteIds((prev) => {
-        const next = new Set(prev)
-        next.delete(key)
-        return next
-      })
-      setFavorites((prev) =>
-        prev.filter(
-          (fav) =>
-            !(fav.id === listing.id && fav.source === listing.source)
-        )
-      )
+      // optimistic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const nextFavorites = favorites.filter(
+        f => !(f.id === listing.id && f.source === listing.source)
+      );
+      setFavorites(nextFavorites);
+      setFavoriteIds(rebuildFavoriteIds(nextFavorites));
 
-      // API call
-      const result = await favoritesService.removeFavorite(listing.id.toString(), listing.source)
+      const result = await favoritesService.removeFavorite(
+        listing.id,
+        listing.source
+      );
 
       if (!result.success) {
-        // Revert on error
-        setFavoriteIds((prev) => new Set(prev).add(key))
-        setFavorites((prev) => [...prev, listing])
+        // revert
+        setFavorites(prevFavorites);
+        setFavoriteIds(prevIds);
 
-        Alert.alert('Error', result.error || 'Failed to remove favorite', [{ text: 'OK' }])
+        Alert.alert(
+          "Error",
+          result.error || "Failed to remove favorite",
+          [{ text: "OK" }]
+        );
+      } else {
+        DeviceEventEmitter.emit("favorites-updated");
       }
 
-      return result.success
+      return result.success;
     },
-    [isFavorite]
-  )
+    [favorites, favoriteIds, isFavorite, rebuildFavoriteIds]
+  );
 
-  /**
-   * Refresh favorites list
-   */
-  const refresh = useCallback(async () => {
-    await loadFavorites()
-  }, [loadFavorites])
 
-  // Load favorites on mount
   useEffect(() => {
-    loadFavorites()
-  }, [loadFavorites])
+    loadFavorites();
+    const sub = DeviceEventEmitter.addListener("favorites-updated", () => {
+      loadFavorites();
+    });
+    return () => {
+      sub.remove();
+    };
+  }, [loadFavorites]);
 
   return {
     favorites,
-    favoriteIds,
     loading,
     error,
     isFavorite,
-    toggleFavorite,
     addFavorite,
     removeFavorite,
-    refresh
-  }
-}
+    refresh: loadFavorites,
+    toggleFavorite
+  };
+};

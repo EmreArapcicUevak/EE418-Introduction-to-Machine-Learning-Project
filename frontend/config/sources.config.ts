@@ -60,11 +60,10 @@ export const getSourceConfig = (sourceId: Exclude<DataSource, 'all'>): SourceCon
 /**
  * Get source options for filters (includes 'all')
  */
-export const getSourceFilterOptions = (): { value: DataSource; label: string }[] => {
+export const getSourceFilterOptions = (): { value: Exclude<DataSource, 'all'>; label: string }[] => {
   return [
-    { value: 'all', label: 'All Sources' },
     ...getAllSources().map(source => ({
-      value: source.id as DataSource,
+      value: source.id as Exclude<DataSource, 'all'>,
       label: source.label
     }))
   ]

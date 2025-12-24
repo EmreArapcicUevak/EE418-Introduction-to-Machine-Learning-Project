@@ -122,16 +122,6 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               </FilterSection>
             )}
 
-            {/* Property Type */}
-            {filterOptions.property_types.length > 0 && (
-              <FilterSection title="🏠 Property Type">
-                <ChipGroup
-                  options={filterOptions.property_types}
-                  selected={filters.propertyType}
-                  onSelect={(value) => updateFilter('propertyType', value === filters.propertyType ? '' : value)}
-                />
-              </FilterSection>
-            )}
 
             {/* Ad Type */}
             {filterOptions.ad_types.length > 0 && (

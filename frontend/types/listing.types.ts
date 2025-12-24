@@ -3,7 +3,7 @@
  * Add new sources by extending the DataSource type
  */
 
-export type DataSource = 'olx' | 'nekretnine' | 'all'
+export type DataSource = 'olx' | 'nekretnine'
 
 export interface Listing {
   id: number
@@ -58,7 +58,7 @@ export interface Listing {
 }
 
 export interface ListingFilters {
-  source: DataSource
+  source: Exclude<DataSource, 'all'>
   search: string
   priceMin: string
   priceMax: string
@@ -82,9 +82,10 @@ export interface FilterOptions {
 }
 
 export interface ListingsParams {
+  sort_by?: 'deal-score' | 'newest' | 'price-low' | 'price-high'
   limit?: number
   offset?: number
-  source?: DataSource
+  source?: Exclude<DataSource, 'all'>
   search?: string
   municipality?: string
   property_type?: string
@@ -125,14 +126,4 @@ export interface MunicipalityStats {
   avg_price_per_m2: number
   avg_rooms: number
   avg_size: number
-}
-
-export interface FavoriteItem {
-  id: number
-  user_id: string
-  source: Exclude<DataSource, 'all'>
-  listing_id: number
-  notes?: string
-  created_at: string
-  listing?: Listing
 }

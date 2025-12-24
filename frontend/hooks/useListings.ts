@@ -13,8 +13,9 @@ interface UseListingsOptions {
 }
 
 export const useListings = (options: UseListingsOptions = {}) => {
-  const { initialFilters = {}, pageSize = 50 } = options
+  const [sortBy, setSortBy] = useState<'deal-score' | 'newest' | 'price-low' | 'price-high'>('deal-score')
 
+  const { initialFilters = {}, pageSize = 50 } = options
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -32,7 +33,7 @@ export const useListings = (options: UseListingsOptions = {}) => {
   })
 
   const [filters, setFilters] = useState<ListingFilters>({
-    source: 'all',
+    source: 'olx',
     search: '',
     priceMin: '',
     priceMax: '',
@@ -91,6 +92,7 @@ export const useListings = (options: UseListingsOptions = {}) => {
       }
 
       const params: ListingsParams = {
+        sort_by: sortBy,
         limit: pageSize,
         offset: currentOffset,
         source: currentFilters.source,
@@ -141,7 +143,7 @@ export const useListings = (options: UseListingsOptions = {}) => {
       setLoadingMore(false)
       loadingMoreRef.current = false
     }
-  }, [pageSize])
+  }, [pageSize, sortBy])
 
   // Load filter options on mount
   useEffect(() => {
@@ -166,7 +168,7 @@ export const useListings = (options: UseListingsOptions = {}) => {
 
   const clearFilters = useCallback(() => {
     setFilters({
-      source: 'all',
+      source: 'olx',
       search: '',
       priceMin: '',
       priceMax: '',
@@ -197,6 +199,8 @@ export const useListings = (options: UseListingsOptions = {}) => {
     setFilters,
     updateFilters,
     clearFilters,
+    sortBy,
+    setSortBy,
     loadMore,
     refresh
   }

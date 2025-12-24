@@ -1,5 +1,6 @@
 import { API_URL } from '@/constants/config'
 import { supabase } from './supabase'
+import { ListingsParams } from '@/types/listing.types'
 
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -41,23 +42,6 @@ export async function getUserPredictions(limit = 50) {
   }
   
   return response.json()
-}
-
-// ===== Enhanced Listings API v2 =====
-
-export interface ListingsParams {
-  source?: 'all' | 'olx' | 'nekretnine'
-  municipality?: string
-  ad_type?: string
-  price_min?: number
-  price_max?: number
-  rooms_min?: number
-  rooms_max?: number
-  size_min?: number
-  size_max?: number
-  deal_score_min?: number
-  limit?: number
-  offset?: number
 }
 
 export async function getListingsV2(params: ListingsParams = {}) {
@@ -319,7 +303,7 @@ export async function checkHealth() {
 
 export async function getListings(limit = 100, sort = 'deal_score_desc') {
   // Map to v2 API
-  return getListingsV2({ limit, source: 'all' })
+  return getListingsV2({ limit, source: 'olx' })
 }
 
 export async function getRecommendedListings(limit = 50) {

@@ -19,7 +19,6 @@ import { Listing } from "@/types/listing.types";
 import { SourceBadge } from "./SourceBadge";
 import {
   formatPrice,
-  formatPriceEur,
   formatRooms,
   formatSquareMeters,
   getDealScoreColor,
