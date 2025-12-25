@@ -24,17 +24,27 @@ class AdType(str, Enum):
     sale = "Sale"
     rent = "Rent"
 
-class ConditionType(str, Enum):
-    new = "New"
+class ConditionTypeSale(str, Enum):
     renovated = "Renovated"
-    used = "Used"
+    new_build = "New Build"
+    good_condition = "Good Condition"
+    partially_renovated = "Partially Renovated"
+    needs_renovation = "Needs Renovation"
+    under_construction = "Under Construction"
+    
+    
+class ConditionTypeRent(str, Enum):
+    renovated = "Renovated"
+    new_build = "New Build"
+    good_condition = "Good Condition"
+    partially_renovated = "Partially Renovated"
 
 
 class PredictRequest(BaseModel):
     longitude: float = Field(ge=-180, le=180)
     latitude: float = Field(ge=-90, le=90)
 
-    condition: ConditionType
+    condition: ConditionTypeSale | ConditionTypeRent
     ad_type: AdType
 
     rooms: int = Field(gt=0)

@@ -22,7 +22,7 @@ from app.api.predict import router as predict_router
 from app.api.health import router as health_router
 from app.ml.poi.poi_loader import load_poi_data
 
-PLACE = "Sarajevo, Bosnia and Herzegovina"
+PLACE = "Sarajevo Canton, Bosnia and Herzegovina"
 SALES_MODEL_PATH = os.getenv("SALES_MODEL_PATH")
 RENTALS_MODEL_PATH = os.getenv("RENTALS_MODEL_PATH")
 

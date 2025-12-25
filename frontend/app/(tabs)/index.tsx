@@ -190,24 +190,45 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Condition only appears for Sale, not Rent */}
-          {adType === "Sale" && (
-            <>
-              <Text style={styles.label}>Condition</Text>
-              <View style={styles.pickerContainer}>
-                <SelectPicker
-                  selectedValue={condition}
-                  onValueChange={setCondition}
-                  items={[
-                    { label: "Renovated", value: "Renovated" },
-                    { label: "New", value: "New" },
-                    { label: "Used", value: "Used" },
-                  ]}
-                  style={styles.picker}
-                />
-              </View>
-            </>
-          )}
+          <>
+            <Text style={styles.label}>Condition</Text>
+            <View style={styles.pickerContainer}>
+              <SelectPicker
+                selectedValue={condition}
+                onValueChange={setCondition}
+                items={
+                  adType === "Sale"
+                    ? [
+                        { label: "Renovated", value: "Renovated" },
+                        { label: "New Build", value: "New Build" },
+                        { label: "Good Condition", value: "Good Condition" },
+                        {
+                          label: "Partially Renovated",
+                          value: "Partially Renovated",
+                        },
+                        {
+                          label: "Needs Renovation",
+                          value: "Needs Renovation",
+                        },
+                        {
+                          label: "Under Construction",
+                          value: "Under Construction",
+                        },
+                      ]
+                    : [
+                        { label: "Renovated", value: "Renovated" },
+                        { label: "New Build", value: "New Build" },
+                        { label: "Good Condition", value: "Good Condition" },
+                        {
+                          label: "Partially Renovated",
+                          value: "Partially Renovated",
+                        },
+                      ]
+                }
+                style={styles.picker}
+              />
+            </View>
+          </>
 
           <TextInput
             style={styles.input}

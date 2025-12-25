@@ -42,7 +42,7 @@ from app.ml.poi.poi_loader import load_poi_data
 # ------------------------------------------------------------------
 
 BATCH_SIZE = 200
-DEFAULT_PLACE = "Sarajevo, Bosnia and Herzegovina"
+DEFAULT_PLACE = "Sarajevo Canton, Bosnia and Herzegovina"
 DEFAULT_TABLE = "listings_olx"
 
 
@@ -144,9 +144,6 @@ def main():
     sales_model = joblib.load(sales_model_path)
     rentals_model = joblib.load(rentals_model_path)
 
-    # --------------------------------------------------------------
-    # PASS 1: run predictions and collect diff stats
-    # --------------------------------------------------------------
 
     stats = {
         "sale": {"min": float("inf"), "max": float("-inf")},
