@@ -1,6 +1,7 @@
 import { API_URL } from '@/constants/config'
 import { supabase } from './supabase'
 import { ListingsParams } from '@/types/listing.types'
+import { MapListing, StatisticsResponse } from '@/types/statistics.types'
 
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -104,17 +105,28 @@ export async function getFilterOptions() {
   return response.json()
 }
 
-// ===== Statistics & Analytics =====
+export const getStatistics = async (
+  type: "sales" | "rentals"
+): Promise<StatisticsResponse> => {
+  const res = await fetch(
+    `${API_URL}/api/v2/statistics/${type}`
+  );
+  return res.json();
+};
 
-export async function getStatisticsSummary() {
-  const response = await fetch(`${API_URL}/api/v2/statistics/summary`)
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch statistics')
-  }
-  
-  return response.json()
+
+export const getMapData = async (
+  limit = 500
+): Promise<MapListing[]> => {
+  const res = await fetch(
+    `${API_URL}/api/v2/statistics/map-data?limit=${limit}`
+  )
+
+  const json = await res.json()
+  return json.data
 }
+
+
 
 export async function getStatisticsByMunicipality() {
   const response = await fetch(`${API_URL}/api/v2/statistics/by-municipality`)
@@ -299,7 +311,6 @@ export async function checkHealth() {
   return response.json()
 }
 
-// ===== Legacy Methods (for backward compatibility) =====
 
 export async function getListings(limit = 100, sort = 'deal_score_desc') {
   // Map to v2 API

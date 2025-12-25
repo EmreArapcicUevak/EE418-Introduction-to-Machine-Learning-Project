@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from ml_runtime.predict import predict_price
-from app.core.logging import logger
 from app.ml.features.build_features import build_features_from_request
 from enum import Enum
 

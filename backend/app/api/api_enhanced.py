@@ -11,6 +11,8 @@ from supabase import Client
 import os
 from dotenv import load_dotenv
 from supabase import create_client
+from statistics import mean, median
+from collections import Counter
 
 load_dotenv()
 
@@ -22,7 +24,62 @@ supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
 
+def calculate_listing_statistics(listings: list) -> dict:
+    if not listings:
+        return {}
 
+    def safe_values(key):
+        return [x[key] for x in listings if x.get(key) is not None]
+
+    stats = {}
+
+    prices = safe_values("price_numeric")
+    sizes = safe_values("square_m2")
+    price_per_m2 = safe_values("price_per_m2")
+    rooms = safe_values("rooms")
+
+    stats["price"] = {
+        "average": round(mean(prices), 2) if prices else None,
+        "median": round(median(prices), 2) if prices else None,
+        "min": min(prices) if prices else None,
+        "max": max(prices) if prices else None,
+    }
+
+    stats["size_m2"] = {
+        "average": round(mean(sizes), 2) if sizes else None
+    }
+
+    stats["price_per_m2"] = {
+        "average": round(mean(price_per_m2), 2) if price_per_m2 else None
+    }
+
+    stats["rooms"] = {
+        "average": round(mean(rooms), 2) if rooms else None
+    }
+
+    for field in ["municipality", "condition", "heating"]:
+        values = safe_values(field)
+        counter = Counter(values)
+        stats[field] = {
+            "most_common": counter.most_common(1)[0][0] if counter else None,
+            "distribution": dict(counter)
+        }
+
+    distance_fields = [
+        "closest_hospital_m",
+        "closest_school_m",
+        "closest_supermarket_m",
+        "closest_bus_stop_m",
+        "closest_tram_stop_m",
+    ]
+
+    stats["accessibility"] = {
+        field.replace("_m", ""): round(mean(safe_values(field)), 2)
+        if safe_values(field) else None
+        for field in distance_fields
+    }
+
+    return stats
 
 
 @router.get("/api/v2/listings")
@@ -224,187 +281,48 @@ async def get_similar_listings(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ============================================================
-#              ANALYTICS & STATISTICS
-# ============================================================
-
-@router.get("/api/v2/statistics/summary")
-async def get_statistics_summary():
-    """
-    Get overall market statistics
-    """
-    # ...existing code...
-    try:
-        # Get counts by source and ad_type
-        olx_prodaja = supabase.table("listings_olx").select("id", count="exact").eq("is_active", True).eq("ad_type", "Prodaja").execute()
-        olx_iznajmljivanje = supabase.table("listings_olx").select("id", count="exact").eq("is_active", True).eq("ad_type", "Iznajmljivanje").execute()
-        nekretnine_prodaja = supabase.table("listings_nekretnine").select("id", count="exact").eq("is_active", True).eq("ad_type", "Prodaja").execute()
-        nekretnine_iznajmljivanje = supabase.table("listings_nekretnine").select("id", count="exact").eq("is_active", True).eq("ad_type", "Iznajmljivanje").execute()
-
-        # Get price statistics by ad_type
-        all_listings = supabase.table("all_listings").select("price_numeric, ad_type, id").eq("is_active", True).execute()
-        prices_sale = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Sale"]
-        prices_rent = [l["price_numeric"] for l in all_listings.data if l.get("price_numeric") and l.get("ad_type") == "Rent"]
-
-        stats = {
-            "sale": {
-                "total_listings": (olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0) + (nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0),
-                "olx_listings": olx_prodaja.count if hasattr(olx_prodaja, 'count') else 0,
-                "nekretnine_listings": nekretnine_prodaja.count if hasattr(nekretnine_prodaja, 'count') else 0,
-                "price_stats": {
-                    "min": min(prices_sale) if prices_sale else 0,
-                    "max": max(prices_sale) if prices_sale else 0,
-                    "avg": sum(prices_sale) / len(prices_sale) if prices_sale else 0
-                }
-            },
-            "rent": {
-                "total_listings": (olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0) + (nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0),
-                "olx_listings": olx_iznajmljivanje.count if hasattr(olx_iznajmljivanje, 'count') else 0,
-                "nekretnine_listings": nekretnine_iznajmljivanje.count if hasattr(nekretnine_iznajmljivanje, 'count') else 0,
-                "price_stats": {
-                    "min": min(prices_rent) if prices_rent else 0,
-                    "max": max(prices_rent) if prices_rent else 0,
-                    "avg": sum(prices_rent) / len(prices_rent) if prices_rent else 0
-                }
-            }
-        }
-
-        return {
-            "success": True,
-            "data": stats
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    # ...existing code...
-
-
-@router.get("/api/v2/statistics/by-municipality")
-async def get_municipality_stats():
-    """
-    Get statistics grouped by municipality, split by ad_type (Prodaja/Iznajmljivanje).
-    """
-    try:
-        listings_resp = (
-            supabase.table("all_listings")
-            .select("municipality, price_numeric, square_m2, ad_type")
-            .eq("is_active", True)
-            .execute()
-        )
-
-        listings = listings_resp.data or []
-
-        # Find minimum price_per_m2 among Prodaja to help infer unknowns
-        prodaja_ppm = []
-        for item in listings:
-            if item.get("ad_type") == "Prodaja":
-                price = item.get("price_numeric")
-                size = item.get("square_m2")
-                if price and size:
-                    prodaja_ppm.append(price / size)
-        min_prodaja_ppm = min(prodaja_ppm) if prodaja_ppm else None
-
-        municipality_stats = {}
-        for listing in listings:
-            muni = listing.get("municipality", "Unknown")
-            ad_type = listing.get("ad_type")
-            price = listing.get("price_numeric")
-            size = listing.get("square_m2")
-
-            # Infer or skip unknown ad_type
-            if not ad_type or ad_type == "Unknown":
-                if price and size and size > 0 and min_prodaja_ppm is not None:
-                    price_per_m2 = price / size
-                    if price_per_m2 >= min_prodaja_ppm:
-                        ad_type = "Prodaja"
-                    else:
-                        # Drop unknowns that don't meet Prodaja threshold
-                        continue
-                else:
-                    # Drop unknowns without enough data to decide
-                    continue
-
-            bucket = municipality_stats.setdefault(
-                muni,
-                {
-                    "Prodaja": {"count": 0, "prices": [], "sizes": []},
-                    "Iznajmljivanje": {"count": 0, "prices": [], "sizes": []},
-                },
-            )
-
-            target = bucket["Prodaja"] if ad_type == "Prodaja" else bucket["Iznajmljivanje"]
-            target["count"] += 1
-            if price:
-                target["prices"].append(price)
-            if size:
-                target["sizes"].append(size)
-
-        def summarize(entry):
-            avg_price = sum(entry["prices"]) / len(entry["prices"]) if entry["prices"] else 0
-            avg_size = sum(entry["sizes"]) / len(entry["sizes"]) if entry["sizes"] else 0
-            price_per_m2 = avg_price / avg_size if avg_size > 0 else 0
-            return {
-                "count": entry["count"],
-                "avg_price": round(avg_price, 2),
-                "avg_size": round(avg_size, 2),
-                "price_per_m2": round(price_per_m2, 2),
-            }
-
-        result = []
-        for muni, data in municipality_stats.items():
-            prodaja = summarize(data["Prodaja"])
-            iznajmljivanje = summarize(data["Iznajmljivanje"])
-            total_count = prodaja["count"] + iznajmljivanje["count"]
-
-            result.append(
-                {
-                    "municipality": muni,
-                    "total_count": total_count,
-                    "prodaja": prodaja,
-                    "iznajmljivanje": iznajmljivanje,
-                }
-            )
-
-        result.sort(key=lambda x: x["total_count"], reverse=True)
-
-        return {"success": True, "data": result}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/api/v2/statistics/price-trends")
-async def get_price_trends(
-    municipality: Optional[str] = None,
-    days: int = Query(30, ge=7, le=90)
-):
-    """
-    Get price trends over time
-    """
-    try:
-        since_date = datetime.now() - timedelta(days=days)
-        
-        query = supabase.table("price_history").select("*")
-        query = query.gte("changed_at", since_date.isoformat())
-        
-        if municipality:
-            # This requires joining with listings, which is complex in Supabase
-            # For now, return error asking for direct listing ID
-            pass
-        
-        query = query.order("changed_at", desc=False)
-        response = query.execute()
-        
-        return {
-            "success": True,
-            "data": response.data,
-            "period_days": days
-        }
     
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/api/v2/statistics/sales")
+def get_sales_statistics():
+    res = supabase.rpc(
+        "fetch_sales_listings",
+        {
+            "p_limit": 1000000,  
+            "p_offset": 0
+        }
+    ).execute()
+
+    listings = res.data or []
+    statistics = calculate_listing_statistics(listings)
+
+    return {
+        "type": "sale",
+        "count": len(listings),
+        "statistics": statistics
+    }
+
+
+
+
+@router.get("/api/v2/statistics/rentals")
+def get_rentals_listings():
+    res = supabase.rpc(
+        "fetch_rentals_listings",
+        {
+            "p_limit": 1000000,  
+            "p_offset": 0
+        }
+    ).execute()
+
+    listings = res.data or []
+    statistics = calculate_listing_statistics(listings)
+
+    return {
+        "type": "rent",
+        "count": len(listings),
+        "statistics": statistics
+    }
 
 
 @router.get("/api/v2/statistics/map-data")
@@ -414,111 +332,70 @@ async def get_map_data(
     price_max: Optional[int] = None,
     limit: int = Query(500, ge=1, le=1000)
 ):
-    """
-    Get listings with coordinates for map visualization
-    Includes fairness color coding based on deal_score
-    """
     try:
-        query = supabase.table("all_listings").select(
-            "id, title, price_numeric, square_m2, rooms, municipality, "
-            "latitude, longitude, deal_score, predicted_price, price_difference, source"
+        query = (
+            supabase
+            .table("all_listings")
+            .select(
+                "id, title, price_numeric, square_m2, rooms, municipality, "
+                "latitude, longitude, deal_score, predicted_price, price_difference, source"
+            )
+            .eq("is_active", True)
+            .not_.is_("price_numeric", None)
+            .gt("price_numeric", 0)
+            .not_.is_("latitude", None)
+            .not_.is_("longitude", None)
+            .gt("latitude", 42.0)
+            .lt("latitude", 46.0)
+            .gt("longitude", 15.0)
+            .lt("longitude", 20.0)
         )
-        query = query.eq("is_active", True)
-        
-        # Apply filters
+
         if municipality:
             query = query.ilike("municipality", f"%{municipality}%")
-        
+
         if price_min is not None:
             query = query.gte("price_numeric", price_min)
-        
+
         if price_max is not None:
             query = query.lte("price_numeric", price_max)
-        
-        query = query.limit(limit * 2)  # Fetch more to compensate for filtering
+
+        query = query.limit(limit)
         response = query.execute()
-        
-        # Filter out listings without valid coordinates
-        valid_listings = []
+
         for listing in response.data:
+            deal_score = listing.get("deal_score")
+
             try:
-                lat = listing.get("latitude")
-                lon = listing.get("longitude")
-                
-                # Skip if coordinates are None, 0, or invalid
-                if lat is None or lon is None:
-                    continue
-                
-                # Convert to float and validate
-                lat = float(lat)
-                lon = float(lon)
-                
-                # Skip if coordinates are 0 or out of reasonable range for Bosnia
-                if lat == 0 or lon == 0:
-                    continue
-                
-                if not (42.0 <= lat <= 46.0 and 15.0 <= lon <= 20.0):
-                    continue
-                
-                # Update with validated coordinates
-                listing["latitude"] = lat
-                listing["longitude"] = lon
-                
-                # Add color coding based on fairness (deal_score)
-                deal_score = listing.get("deal_score")
-                try:
-                    if deal_score is None or deal_score == '':
-                        deal_score = 50
-                    else:
-                        deal_score = float(deal_score)
-                except (ValueError, TypeError):
-                    deal_score = 50
-                
-                # Color coding:
-                # Green (excellent): deal_score >= 85
-                # Blue (good): 70 <= deal_score < 85
-                # Yellow (fair): 50 <= deal_score < 70
-                # Red (overpriced): deal_score < 50
-                
-                if deal_score >= 85:
-                    listing["marker_color"] = "#10b981"  # green
-                    listing["fairness"] = "excellent"
-                elif deal_score >= 70:
-                    listing["marker_color"] = "#3b82f6"  # blue
-                    listing["fairness"] = "good"
-                elif deal_score >= 50:
-                    listing["marker_color"] = "#f59e0b"  # yellow
-                    listing["fairness"] = "fair"
-                else:
-                    listing["marker_color"] = "#ef4444"  # red
-                    listing["fairness"] = "overpriced"
-                
-                valid_listings.append(listing)
-                
-                # Stop if we have enough valid listings
-                if len(valid_listings) >= limit:
-                    break
-                    
-            except (ValueError, TypeError) as e:
-                # Skip listings with invalid data
-                continue
-        
+                deal_score = float(deal_score) if deal_score is not None else 50
+            except (ValueError, TypeError):
+                deal_score = 50
+
+            if deal_score >= 85:
+                listing["marker_color"] = "#10b981"
+                listing["fairness"] = "excellent"
+            elif deal_score >= 70:
+                listing["marker_color"] = "#3b82f6"
+                listing["fairness"] = "good"
+            elif deal_score >= 50:
+                listing["marker_color"] = "#f59e0b"
+                listing["fairness"] = "fair"
+            else:
+                listing["marker_color"] = "#ef4444"
+                listing["fairness"] = "overpriced"
+
         return {
             "success": True,
-            "data": valid_listings,
-            "count": len(valid_listings)
+            "data": response.data,
+            "count": len(response.data)
         }
-    
+
     except Exception as e:
         import traceback
-        error_detail = f"{str(e)}\n{traceback.format_exc()}"
-        print(f"Error in map-data endpoint: {error_detail}")
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ============================================================
-#              SEARCH & DISCOVERY
-# ============================================================
 
 @router.get("/api/v2/search")
 async def search_listings(
@@ -595,10 +472,6 @@ async def get_filter_options():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ============================================================
-#              SYNC STATUS
-# ============================================================
-
 @router.get("/api/v2/sync/status")
 async def get_sync_status():
     """
@@ -614,27 +487,3 @@ async def get_sync_status():
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/api/v2/health")
-async def health_check():
-    """
-    API health check endpoint
-    """
-    try:
-        # Test database connection
-        test_query = supabase.table("all_listings").select("id").limit(1).execute()
-        
-        return {
-            "status": "healthy",
-            "timestamp": datetime.now().isoformat(),
-            "database": "connected",
-            "version": "2.0.0"
-        }
-    
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "timestamp": datetime.now().isoformat(),
-            "error": str(e)
-        }

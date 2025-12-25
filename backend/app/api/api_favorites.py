@@ -4,8 +4,7 @@ User favorites and saved listings API
 Works with the new multi-source database structure
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends
-from typing import Literal, Optional
+from fastapi import APIRouter, Query, HTTPException, Depends
 from pydantic import BaseModel
 from datetime import datetime
 from supabase import Client
@@ -34,10 +33,6 @@ class RemoveFavoriteRequest(BaseModel):
     listing_id: int
     source: str
 
-
-# ============================================================
-#              USER FAVORITES
-# ============================================================
 
 from fastapi import Query, HTTPException
 from datetime import datetime
@@ -136,8 +131,6 @@ async def get_favorites(
             detail=f"Failed to fetch favorites: {str(e)}"
         )
 
-from fastapi import Query
-
 @router.delete("/api/v2/favorites")
 async def remove_favorite(
     listing_id: int = Query(...),
@@ -206,98 +199,6 @@ async def check_favorite(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ============================================================
-#              SAVED SEARCHES
-# ============================================================
-
-class SavedSearchRequest(BaseModel):
-    search_name: str
-    search_criteria: dict
-    notification_enabled: bool = False
-
-
-@router.post("/api/v2/saved-searches")
-async def create_saved_search(
-    request: SavedSearchRequest,
-    current_user: dict = Depends(auth_service.get_current_user)
-):
-    """
-    Save a search query with optional notifications
-    """
-    try:
-        search_data = {
-            "user_id": current_user["id"],
-            "search_name": request.search_name,
-            "search_criteria": request.search_criteria,
-            "notification_enabled": request.notification_enabled,
-            "created_at": datetime.now().isoformat()
-        }
-        
-        response = supabase.table("user_saved_searches").insert(search_data).execute()
-        
-        return {
-            "success": True,
-            "message": "Search saved successfully",
-            "data": response.data[0] if response.data else None
-        }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saving search: {str(e)}")
-
-
-@router.get("/api/v2/saved-searches")
-async def get_saved_searches(
-    current_user: dict = Depends(auth_service.get_current_user)
-):
-    """
-    Get all user's saved searches
-    """
-    try:
-        response = supabase.table("user_saved_searches") \
-            .select("*") \
-            .eq("user_id", current_user["id"]) \
-            .order("created_at", desc=True) \
-            .execute()
-        
-        return {
-            "success": True,
-            "data": response.data,
-            "count": len(response.data) if response.data else 0
-        }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.delete("/api/v2/saved-searches/{search_id}")
-async def delete_saved_search(
-    search_id: int,
-    current_user: dict = Depends(auth_service.get_current_user)
-):
-    """
-    Delete a saved search
-    """
-    try:
-        response = supabase.table("user_saved_searches") \
-            .delete() \
-            .eq("id", search_id) \
-            .eq("user_id", current_user["id"]) \
-            .execute()
-        
-        return {
-            "success": True,
-            "message": "Saved search deleted"
-        }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ============================================================
-#              USER NOTIFICATIONS
-# ============================================================
 
 @router.get("/api/v2/notifications")
 async def get_notifications(

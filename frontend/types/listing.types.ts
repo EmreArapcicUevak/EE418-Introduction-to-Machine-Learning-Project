@@ -107,23 +107,3 @@ export interface ListingsResponse {
   offset: number
   limit: number
 }
-
-export interface StatisticsSummary {
-  total_listings: number
-  olx_listings: number
-  nekretnine_listings: number
-  price_stats: {
-    min: number
-    max: number
-    avg: number
-  }
-}
-
-export interface MunicipalityStats {
-  municipality: string
-  total_listings: number
-  avg_price: number
-  avg_price_per_m2: number
-  avg_rooms: number
-  avg_size: number
-}
