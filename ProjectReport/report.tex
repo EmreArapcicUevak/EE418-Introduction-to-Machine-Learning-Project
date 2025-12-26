@@ -34,6 +34,7 @@
 \usepackage{tcolorbox} % for adding colored text boxes
 \usepackage{bm} % Adding bold text to math inputs
 \usepackage{pgfplots} % Used for plotting functions
+\usepackage{wallpaper} % For adding wallpapers
 
 % Setting up the fancy page style
 \fancypagestyle{customStyle}{
@@ -54,6 +55,18 @@
 	pdftex
 }
 
+% Setting up the default image path
+\graphicspath{{./Images/}}
+
+\AddToShipoutPictureBG{
+	\ifthenelse{\value{page}=1}{}{%
+		\begin{tikzpicture}[remember picture,overlay]
+			\node [opacity=0.1, at=(current page.center)] {
+				\includegraphics[width=0.5\paperwidth]{CustomImages/IUS Logo}
+			};
+		\end{tikzpicture}
+	}
+}
 
 % Document
 \begin{document}
@@ -102,7 +115,6 @@
     \listoftables
 	
 	\pagebreak
-	
 	\section{Introduction to the Problem}
 		A major problem a lot of people face is that they do not know how to price their apartments
 		or how to check for the \emph{"fairness"} (If the given price matches real expectation) of
