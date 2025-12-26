@@ -21,10 +21,14 @@ from app.api.api_favorites import router as favorites_router
 from app.api.predict import router as predict_router
 from app.api.health import router as health_router
 from app.ml.poi.poi_loader import load_poi_data
+from pathlib import Path
 
 PLACE = "Sarajevo Canton, Bosnia and Herzegovina"
-SALES_MODEL_PATH = os.getenv("SALES_MODEL_PATH")
-RENTALS_MODEL_PATH = os.getenv("RENTALS_MODEL_PATH")
+
+BASE_DIR = Path(__file__).resolve().parent.parent  
+
+SALES_MODEL_PATH = BASE_DIR / "app" / "ml" / "models" / "sales_predict_ML.joblib"
+RENTALS_MODEL_PATH = BASE_DIR / "app" / "ml" / "models" / "rentals_predict_ML.joblib"
 
 sales_model = joblib.load(SALES_MODEL_PATH)
 rentals_model = joblib.load(RENTALS_MODEL_PATH)

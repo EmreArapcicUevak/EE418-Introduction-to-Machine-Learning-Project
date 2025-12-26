@@ -30,9 +30,9 @@ from supabase import create_client
 # Path setup so imports work when running as a script
 # ------------------------------------------------------------------
 
-BACKEND_DIR = Path(__file__).resolve().parents[1]
-if str(BACKEND_DIR) not in sys.path:
-    sys.path.append(str(BACKEND_DIR))
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
 from app.ml.features.build_features import build_features_from_request
 from app.ml.poi.poi_loader import load_poi_data
@@ -41,18 +41,18 @@ from app.ml.poi.poi_loader import load_poi_data
 # Config
 # ------------------------------------------------------------------
 
+SALES_MODEL_PATH = BASE_DIR / "app" / "ml" / "models" / "sales_predict_ML.joblib"
+RENTALS_MODEL_PATH = BASE_DIR / "app" / "ml" / "models" / "rentals_predict_ML.joblib"
+
 BATCH_SIZE = 200
 DEFAULT_PLACE = "Sarajevo Canton, Bosnia and Herzegovina"
 DEFAULT_TABLE = "listings_olx"
 
 
-# ------------------------------------------------------------------
-# Helpers
-# ------------------------------------------------------------------
 
 def ad_type_key(ad_type: str) -> str:
     """Normalize ad type to 'sale' or 'rent'."""
-    if ad_type and ad_type.lower().startswith(("rent", "iznaj")):
+    if ad_type and ad_type.lower().startswith(("rent")):
         return "rent"
     return "sale"
 
@@ -102,37 +102,23 @@ def build_features_from_row(row: dict, poi_data):
     return build_features_from_request(req, poi_data)
 
 
-# ------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------
-
 def main():
     load_dotenv()
 
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-    sales_model_path = os.getenv("SALES_MODEL_PATH")
-    rentals_model_path = os.getenv("RENTALS_MODEL_PATH")
 
-    place = os.getenv("PLACE_NAME", DEFAULT_PLACE)
-    table = os.getenv("LISTINGS_TABLE", DEFAULT_TABLE)
+    place = DEFAULT_PLACE
+    table = DEFAULT_TABLE
+
+    sales_model_path = Path(os.getenv("SALES_MODEL_PATH") or SALES_MODEL_PATH)
+    rentals_model_path = Path(os.getenv("RENTALS_MODEL_PATH") or RENTALS_MODEL_PATH)
 
     if not supabase_url or not supabase_key:
         raise RuntimeError("Supabase credentials are missing")
 
-    if not sales_model_path or not rentals_model_path:
-        raise RuntimeError("Model paths are not set")
-
-    def resolve_model_path(p: str) -> Path:
-        path = Path(p)
-        if not path.is_absolute():
-            path = BACKEND_DIR / path
-        if not path.exists():
-            raise FileNotFoundError(f"Model not found: {path}")
-        return path
-
-    sales_model_path = resolve_model_path(sales_model_path)
-    rentals_model_path = resolve_model_path(rentals_model_path)
+    if not sales_model_path.exists() or not rentals_model_path.exists():
+        raise RuntimeError("Model paths are not set or files are missing")
 
     print("Connecting to Supabase…")
     supabase = create_client(supabase_url, supabase_key)
