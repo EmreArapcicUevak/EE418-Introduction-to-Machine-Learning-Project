@@ -7,7 +7,7 @@
 % Packages
 \usepackage[margin = 1in]{geometry} % for spacing around
 \usepackage{graphicx} % for including images in your pdfs
-\usepackage{xcolor} % for including colors in your pdf
+\usepackage[table]{xcolor} % for including colors in your pdf
 \usepackage{soul} % for text decoration
 \usepackage[utf8]{inputenc} % for encoded text
 \usepackage[T1]{fontenc}
@@ -35,6 +35,8 @@
 \usepackage{bm} % Adding bold text to math inputs
 \usepackage{pgfplots} % Used for plotting functions
 \usepackage{wallpaper} % For adding wallpapers
+\usepackage{booktabs}
+\usepackage{tabularx}
 
 % Setting up the fancy page style
 \fancypagestyle{customStyle}{
@@ -67,6 +69,10 @@
 		\end{tikzpicture}
 	}
 }
+
+
+\newcommand{\olx}{\href{https://olx.ba}{OLX.ba}}
+
 
 % Document
 \begin{document}
@@ -148,6 +154,57 @@
 			whenever we wish to retrain the model rather than just saving it locally. \newline
 
 			\noindent The dataset is available \href{https://www.kaggle.com/datasets/mustafasinanovic/sarajevo-flats}{here}.
+
+		\pagebreak
+		\subsection{Data Overview}
+			The data we were able to get from every entry from \olx~is as follows:
+			\begin{itemize}
+				\item[title] The title of the post
+				\item[url] The url to the post
+				\item[price\_numeric] The numeric price of the apartment (either the renting or selling price)
+				\item[municipality] The municipality the apartment is located in
+				\item[rooms] The number of rooms the apartment has
+				\item[square\_m2] The $m^2$ of an apartment
+				\item[condition] The condition of the apartment
+				\item[ad\_type] If the apartment is listed for sale or for renting
+				\item[property\_type] Apartments labeled as either "Stan" or "Apartman" (More about this later)
+				\item[equipment] Feature that tells us how furnished the apartment is
+				\item[level]
+				\item[heating]
+				\item[latitude]
+				\item[longitude] 
+			\end{itemize}
+
+			\vspace{1cm}
+			\noindent For more detail on the data's domains please refer to the Table~\ref{tab:feature_domains}
+
+			\begin{table}[h]
+				\centering
+
+				\rowcolors{2}{gray!12}{white}
+				\begin{tabularx}{\textwidth}{|l|X|}
+					\toprule
+					\textbf{Feature} & \textbf{Possible values} \\
+					\midrule
+						ad\_type        & Sale, Rent \\
+						property\_type & Stan, Apartman \\
+						condition      & New Build, Good Condition, Renovated, Partially Renovated, Under Construction, Needs Renovation\\
+						equipment      & Furnished, Semi-furnished, Unfurnished \\
+						rooms           & Integer $\geq 1.0$ \\
+						square\_m2      & Continuous ($m^2$) \\
+						price\_numeric  & Continuous (BAM) \\
+						municipality   & One of Sarajevo municipalities \\
+						title & Title of the post \\
+						url & url of the scraped post \\
+					\bottomrule
+				\end{tabularx}
+
+				\caption{Overview of features and their possible values}
+				\label{tab:feature_domains}
+			\end{table}
+
+		\pagebreak
+
 
 		\subsection{Data pre-processing}
 
