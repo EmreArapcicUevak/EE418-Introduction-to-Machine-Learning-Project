@@ -10,8 +10,6 @@ For each listing:
 Required env vars:
     SUPABASE_URL
     SUPABASE_SERVICE_ROLE_KEY
-    SALES_MODEL_PATH
-    RENTALS_MODEL_PATH
 
 Run with:
     python backend/scripts/backfill_predictions.py
@@ -111,8 +109,8 @@ def main():
     place = DEFAULT_PLACE
     table = DEFAULT_TABLE
 
-    sales_model_path = Path(os.getenv("SALES_MODEL_PATH") or SALES_MODEL_PATH)
-    rentals_model_path = Path(os.getenv("RENTALS_MODEL_PATH") or RENTALS_MODEL_PATH)
+    sales_model_path = SALES_MODEL_PATH
+    rentals_model_path = RENTALS_MODEL_PATH
 
     if not supabase_url or not supabase_key:
         raise RuntimeError("Supabase credentials are missing")
