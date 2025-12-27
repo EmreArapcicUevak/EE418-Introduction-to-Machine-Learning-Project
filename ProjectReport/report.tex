@@ -214,7 +214,6 @@
 			\begin{itemize}
 				\item Data Cleaning
 				\item Handling of missing values
-				\item Scaling and Encoding
 			\end{itemize}
 
 			\subsubsection{Data Cleaning}
@@ -224,7 +223,7 @@
 					\centering
 					\includegraphics{Images/pre_clean_count_plot_of_condition_via_ad_type}
 					\caption{Distribution of conditions with respect to ad\_type}
-					\label{fig:pre_clean_count_via_ad_type}
+					\label{fig:pre_clean_count_condition_via_ad_type}
 				\end{figure}
 
 				\begin{table}[h]
@@ -250,40 +249,357 @@
 				\end{table}
 
 
-		\noindent As can be seen from the count plot, Fig~\ref{fig:pre_clean_count_via_ad_type}, and the value counts
-		tables, Table~\ref{tab:pre_clean_count_of_condition}, there seems to be some mistakes in the data that need
-		cleaning up. \newline
+				\noindent As can be seen from the count plot, Fig~\ref{fig:pre_clean_count_condition_via_ad_type}, and the value counts
+				tables, Table~\ref{tab:pre_clean_count_of_condition}, there seems to be some mistakes in the data that need
+				cleaning up. \newline
 
-		\noindent The first thing that can be seen is the strange 'Apartment' value for the conditions which can
-		only be found once for Sales, as can be seen in Table~\ref{tab:pre_clean_count_of_condition_of_sale}. This
-		is clearly a mistake made by the poster of the apartment and can be removed. \newline
+				\noindent The first thing that can be seen is the strange 'Apartment' value for the conditions which can
+				only be found once for Sales, as can be seen in Table~\ref{tab:pre_clean_count_of_condition_of_sale}. This
+				is clearly a mistake made by the poster of the apartment and can be removed. \newline
 
-		\noindent There is another interesting thing that can be seen in Figure~\ref{fig:pre_clean_count_via_ad_type},
-		it is that rentals can never have the conditions:
-		\begin{itemize}
-			\item Under Construction
-			\item Needs Renovation
-		\end{itemize}
+				\noindent There is another interesting thing that can be seen in Figure~\ref{fig:pre_clean_count_condition_via_ad_type},
+				it is that rentals can never have the conditions:
+				\begin{itemize}
+					\item Under Construction
+					\item Needs Renovation
+				\end{itemize}
 
-		Which makes sense because you would not rent out an apartment that needs to be renovated and you cannot rent
-		out an apartment that is under construction!
+				Which makes sense because you would not rent out an apartment that needs to be renovated and you cannot rent
+				out an apartment that is under construction!
 
-		There is a caveat to this however, even though hard to see from the graph the table~\ref{tab:pre_clean_count_of_condition_of_rent}
-		does show one apartment marked as needing renovation but being listed up for renting.
+				There is a caveat to this however, even though hard to see from the graph the table~\ref{tab:pre_clean_count_of_condition_of_rent}
+				does show one apartment marked as needing renovation but being listed up for renting.
 
-		However, we can safely remove this case for us as it is only one apartment under these conditions. \newline
+				However, we can safely remove this case for us as it is only one apartment under these conditions. \newline
 
-		\noindent And finally what we are left to talk is about the imbalance of the condition category, mainly that
-		as can be seen that rentals have a tiny amount of apartment marked under 'Partially Renovated', and that sales
-		also have a smaller amount of apartments when it comes to 'Partially Renovated', 'Under Construction', and 'Needs Renovation'
+				\noindent And finally what we are left to talk is about the imbalance of the condition category, mainly that
+				as can be seen that rentals have a tiny amount of apartment marked under 'Partially Renovated', and that sales
+				also have a smaller amount of apartments when it comes to 'Partially Renovated', 'Under Construction', and 'Needs Renovation'
 
-		\vspace{1cm}
+				\pagebreak
 
-		\subsection{Feature Selection}
+				\begin{figure}[h]
+					\centering
+					\includegraphics{Images/pre_clean_count_plot_of_municipality_via_ad_type}
+					\caption{Distribution of municipalities with respect to ad\_type}
+					\label{fig:pre_clean_count_municipality_via_ad_type}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Value counts of municipality by ad\_type}
+					\label{tab:pre_clean_count_of_municipality}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_municipality_of_rent}
+
+						\caption{Value Counts for Rents}
+						\label{tab:pre_clean_count_of_municipality_of_rent}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_municipality_of_sale}
+
+						\caption{Value Counts for Sales}
+						\label{tab:pre_clean_count_of_municipality_of_sale}
+					\end{subtable}
+				\end{table}
+
+				\noindent As can be seen here, we do have a "shortage" of apartment from certain municipalities.
+				However, this is not as problematic as it might seem, in the later sections where we talk about Feature Engineering and
+				Feature Selection we will see that even a lot of the apartments that we have right now might not be usable,
+				and this is all thanks to the fact that a lot of them do have coordinates or if they do they also have a chance to
+				be either incorrectly placed or show locations of agencies.
+
+				\pagebreak
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics{Images/pre_clean_count_plot_of_property_type_via_ad_type}
+					\caption{Distribution of property types with respect to ad\_type}
+					\label{fig:pre_clean_count_property_type_via_ad_type}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Value counts of property\_type by ad\_type}
+					\label{tab:pre_clean_count_of_property_type}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_property_type_of_rent}
+
+						\caption{Value Counts for Rents}
+						\label{tab:pre_clean_count_of_property_type_of_rent}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_property_type_of_sale}
+
+						\caption{Value Counts for Sales}
+						\label{tab:pre_clean_count_of_property_type_of_sale}
+					\end{subtable}
+				\end{table}
+
+				\noindent The graph and table shows us that there is generally a much larget amount of apartments that had their
+				property type labeled as Flats rather then apartments but as we will talk about it during the Feature Selection
+				section this feature seems redundant as it doesn't convey any additional information and the separation is not
+				consistent.
+
+				\pagebreak
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics{Images/pre_clean_count_plot_of_heating_via_ad_type}
+					\caption{Distribution of heating types with respect to ad\_type}
+					\label{fig:pre_clean_count_heating_via_ad_type}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Value counts of heating by ad\_type}
+					\label{tab:pre_clean_count_of_heating}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_heating_of_rent}
+
+						\caption{Value Counts for Rents}
+						\label{tab:pre_clean_count_of_heating_of_rent}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_heating_of_sale}
+
+						\caption{Value Counts for Sales}
+						\label{tab:pre_clean_count_of_heating_of_sale}
+					\end{subtable}
+				\end{table}
+
+				\noindent Here we can also see that some categories of heating appear more often then others however
+				the key insight here is the heating type "Wood Heating". It is problematically tiny.
+
+				\noindent However, there is a fix that we decided to go with; We took all the apartments with heating set to
+				"Wood Heating" and re-categorized them as "Other"
+
+				\pagebreak
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_equipment_via_ad_type}
+					\caption{Distribution of heating types with respect to ad\_type}
+					\label{fig:pre_clean_equipment_distribution_pie}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Value counts of equipment by ad\_type}
+					\label{tab:pre_clean_count_of_equiptment}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_equipment_of_rent}
+
+						\caption{Value Counts for Rents}
+						\label{tab:pre_clean_count_of_equipment_of_rent}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_equipment_of_sale}
+
+						\caption{Value Counts for Sales}
+						\label{tab:pre_clean_count_of_equipment_of_sale}
+					\end{subtable}
+				\end{table}
+
+				\noindent The most notable thing to see here is that Rentals have a tendency to be furnished more than anything. This makes sense
+				as when are you to find an apartment listed up for rent that is not furnished. \newline
+
+				\noindent This of course creates a big imbalance and will most likely make the `equipment` feature less accurate for rental prices
+				when it comes to "Unfurnished" and or "Semi-Furnished"
+
+				\pagebreak
+
+				\noindent Now lets move to analysis of numeric features
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/pre_clean_level_distribution}
+					\caption{Distribution of levels with respect to ad\_type}
+					\label{fig:pre_clean_level_distribution}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Level distribution}
+					\label{tab:pre_clean_level_distribution_statistics}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_level_distribution_statistics_for_rent}
+
+						\caption{Level Distribution of Rents}
+						\label{tab:pre_clean_level_distribution_statistics_for_rents}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_level_distribution_statistics_for_sale}
+
+						\caption{Level Distributions for Sales}
+						\label{tab:pre_clean_level_distribution_statistics_for_sales}
+					\end{subtable}
+				\end{table}
+
+				\noindent Apart from the distributions being equal for both rentals and sales there is one important information
+				that cannot be gathered just from the plots themselves. Originally when we collected the data we have had an issue that
+				levels were saving as \emph{"Objects"} and not as Integers or Floats. \newline
+
+				\noindent This happens because of the fact that on \olx~apartments can really only go up till floor 20, where anything above that is marked
+				as \emph{20+}. To spare the machine learning models from the so-called \emph{curse of high dimensionality} we ended up converting
+				all of the 20+ values into 20. The reason for us doing this was mainly because of our domain knowledge. We have had been looking
+				around Sarajevo, as not only does it have the most of the listings in it but also has some of the highest buildings in it, we found out
+				that most if not all of the bigger buildings hosting apartments went up to 21 and some up to 22 meaning that these apartments would be
+				relatively close to one another; hence there is a spike that can be seen on the plot at Figure~\ref{fig:pre_clean_level_distribution}.
+
+				\pagebreak
+
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/pre_clean_price_numeric_distribution}
+					\caption{Distribution of price\_numerics with respect to ad\_type}
+					\label{fig:pre_clean_price_numeric_distribution}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Price distribution}
+					\label{tab:pre_clean_price_numeric_distribution_statistics}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_price_numeric_distribution_statistics_for_rent}
+
+						\caption{Level Distribution of Rents}
+						\label{tab:pre_clean_price_numeric_distribution_statistics_for_rents}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_price_numeric_distribution_statistics_for_sale}
+
+						\caption{Level Distributions for Sales}
+						\label{tab:pre_clean_price_numeric_distribution_statistics_for_sales}
+					\end{subtable}
+				\end{table}
+
+
+				\noindent Surprisingly the data here is clean and makes a lot of sense. The key idea here is not that there seems to be a lot of
+				outliers as this is normal, as we will see when we take a look at the distribution of $m^2$ there are genuinely much larger
+				apartments which will cost more, but the fact that the distribution differ so dramatically actually influenced us to make two separate
+				machine learning models where one tries to predict the price for rentals and the other for sales.
+
+
+				\pagebreak
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/pre_clean_square_m2_distribution}
+					\caption{Distribution of $m^2$'s with respect to ad\_type}
+					\label{fig:pre_clean_square_m2_distribution}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{$m^2$ distribution}
+					\label{tab:pre_clean_square_m2_distribution_statistics}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_square_m2_distribution_statistics_for_rent}
+
+						\caption{$m^2$ Distribution of Rents}
+						\label{tab:pre_clean_square_m2_distribution_statistics_for_rents}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_square_m2_distribution_statistics_for_sale}
+
+						\caption{$m^2$ Distributions for Sales}
+						\label{tab:pre_clean_square_m2_distribution_statistics_for_sales}
+					\end{subtable}
+				\end{table}
+
+				\noindent Here as well the distribution seems okay, and as we can see there are some pretty giant apartments being both sold and rented which
+				explains the previous price outliers. \newline
+
+				\noindent However, one keynote here is the outliers for Sales; We find it very hard to believe that there is an apartment on sale that
+				only has an area of $1.13 m^2$, hence we ended up removing these outliers.
+
+				\pagebreak
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/pre_clean_rooms_distribution}
+					\caption{Distribution of rooms with respect to ad\_type}
+					\label{fig:pre_clean_rooms_distribution}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Rooms distribution}
+					\label{tab:pre_clean_rooms_distribution_statistics}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_rooms_distribution_statistics_for_rent}
+
+						\caption{Rooms Distribution of Rents}
+						\label{tab:pre_clean_rooms_distribution_statistics_for_rents}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_rooms_distribution_statistics_for_sale}
+
+						\caption{Rooms Distributions for Sales}
+						\label{tab:pre_clean_rooms_distribution_statistics_for_sales}
+					\end{subtable}
+				\end{table}
+
+				\noindent And for our last analysis we have rooms. The only thing that we can see here is that so far we only have apartments with one to four rooms
+				but no troubling data like some huge outliers nor values like half a room or no rooms at all.
+
+				\pagebreak
+
+			\subsubsection{Missing Values}
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/missing_features_bar}
+					\caption{Bar plot representation of missing features}
+					\label{fig:Missing Feature Bar Plot}
+				\end{figure}
+	
+		\subsection{Feature Engineering}
+			\subsubsection{Feature Selection}
+			\subsubsection{Feature Creation}
+			\subsection{Feature Scaling}
 
 		\subsection{Methods}
+			\subsubsection{Model Selection}
+			\subsubsection{Paramater Optimization}
 
 	\section{Results}
+		\subsection{Evaluation of best models}
+		\subsection{Model Selection}
+
 	\section{Conclusion}
 	\section{Work Distribution}
 \end{document}
