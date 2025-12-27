@@ -169,13 +169,13 @@
 				\item[ad\_type] If the apartment is listed for sale or for renting
 				\item[property\_type] Apartments labeled as either "Stan" or "Apartman" (More about this later)
 				\item[equipment] Feature that tells us how furnished the apartment is
-				\item[level]
-				\item[heating]
-				\item[latitude]
-				\item[longitude] 
+				\item[level] The floor the apartment is located on
+				\item[heating] The type of heating the apartment is using
+				\item[latitude] The latitude coordinate of the apartment
+				\item[longitude] The longitude coordinate of the apartment
 			\end{itemize}
 
-			\vspace{1cm}
+			\vspace{0.5cm}
 			\noindent For more detail on the data's domains please refer to the Table~\ref{tab:feature_domains}
 
 			\begin{table}[h]
@@ -186,16 +186,19 @@
 					\toprule
 					\textbf{Feature} & \textbf{Possible values} \\
 					\midrule
-						ad\_type        & Sale, Rent \\
-						property\_type & Stan, Apartman \\
-						condition      & New Build, Good Condition, Renovated, Partially Renovated, Under Construction, Needs Renovation\\
-						equipment      & Furnished, Semi-furnished, Unfurnished \\
-						rooms           & Integer $\geq 1.0$ \\
-						square\_m2      & Continuous ($m^2$) \\
-						price\_numeric  & Continuous (BAM) \\
-						municipality   & One of Sarajevo municipalities \\
 						title & Title of the post \\
 						url & url of the scraped post \\
+						price\_numeric  & Continuous (BAM) \\
+						municipality   & One of Sarajevo municipalities \\
+						rooms           & Integer $\geq 1.0$ \\
+						square\_m2      & Continuous ($m^2$) \\
+						condition      & New Build, Good Condition, Renovated, Partially Renovated, Under Construction, Needs Renovation\\
+						ad\_type        & Sale, Rent \\
+						property\_type & Stan, Apartman \\
+						equipment      & Furnished, Semi-furnished, Unfurnished \\
+						level & Integer \\
+						heating & District Heating, Gas Heating, Electric Heating, Central Gas Heating, Central (Boiler Room), Wood Heating, Other \\
+						latitude and lonitude & The coordinates of the apartment \\
 					\bottomrule
 				\end{tabularx}
 
