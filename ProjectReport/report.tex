@@ -37,6 +37,8 @@
 \usepackage{wallpaper} % For adding wallpapers
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{subcaption}
+\usepackage{float}
 
 % Setting up the fancy page style
 \fancypagestyle{customStyle}{
@@ -178,7 +180,7 @@
 			\vspace{0.5cm}
 			\noindent For more detail on the data's domains please refer to the Table~\ref{tab:feature_domains}
 
-			\begin{table}[h]
+			\begin{table}[H]
 				\centering
 
 				\rowcolors{2}{gray!12}{white}
@@ -206,10 +208,76 @@
 				\label{tab:feature_domains}
 			\end{table}
 
-		\pagebreak
-
 
 		\subsection{Data pre-processing}
+			In this subsection we will cover some of the pre-processing steps that we have taken, such as:
+			\begin{itemize}
+				\item Data Cleaning
+				\item Handling of missing values
+				\item Scaling and Encoding
+			\end{itemize}
+
+			\subsubsection{Data Cleaning}
+				Lets first take a look at our categorical data.
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics{Images/pre_clean_count_plot_of_condition_via_ad_type}
+					\caption{Distribution of conditions with respect to ad\_type}
+					\label{fig:pre_clean_count_via_ad_type}
+				\end{figure}
+
+				\begin{table}[h]
+					\centering
+					\caption{Value counts of condition by ad\_type}
+					\label{tab:pre_clean_count_of_condition}
+
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_condition_of_rent}
+
+						\caption{Value Counts for Rents}
+						\label{tab:pre_clean_count_of_condition_of_rent}
+					\end{subtable}
+					\hfill
+					\begin{subtable}{0.45\textwidth}
+						\centering
+						\input{Tables/pre_clean_count_of_condition_of_sale}
+
+						\caption{Value Counts for Sales}
+						\label{tab:pre_clean_count_of_condition_of_sale}
+					\end{subtable}
+				\end{table}
+
+
+		\noindent As can be seen from the count plot, Fig~\ref{fig:pre_clean_count_via_ad_type}, and the value counts
+		tables, Table~\ref{tab:pre_clean_count_of_condition}, there seems to be some mistakes in the data that need
+		cleaning up. \newline
+
+		\noindent The first thing that can be seen is the strange 'Apartment' value for the conditions which can
+		only be found once for Sales, as can be seen in Table~\ref{tab:pre_clean_count_of_condition_of_sale}. This
+		is clearly a mistake made by the poster of the apartment and can be removed. \newline
+
+		\noindent There is another interesting thing that can be seen in Figure~\ref{fig:pre_clean_count_via_ad_type},
+		it is that rentals can never have the conditions:
+		\begin{itemize}
+			\item Under Construction
+			\item Needs Renovation
+		\end{itemize}
+
+		Which makes sense because you would not rent out an apartment that needs to be renovated and you cannot rent
+		out an apartment that is under construction!
+
+		There is a caveat to this however, even though hard to see from the graph the table~\ref{tab:pre_clean_count_of_condition_of_rent}
+		does show one apartment marked as needing renovation but being listed up for renting.
+
+		However, we can safely remove this case for us as it is only one apartment under these conditions. \newline
+
+		\noindent And finally what we are left to talk is about the imbalance of the condition category, mainly that
+		as can be seen that rentals have a tiny amount of apartment marked under 'Partially Renovated', and that sales
+		also have a smaller amount of apartments when it comes to 'Partially Renovated', 'Under Construction', and 'Needs Renovation'
+
+		\vspace{1cm}
 
 		\subsection{Feature Selection}
 
