@@ -864,7 +864,101 @@
 
 		\subsection{Methods}
 			\subsubsection{Model Selection}
+				\label{subsubsec:Model Selection}
+
+				\noindent When it comes to model selection we used scikit's default parameter models to quickly get an overall image of how well these models
+				would perform, of course the selection of these models was based on our knowledge of how they worked and the knowledge about the problem domain. \newline
+
+				\noindent The models were quickly trained on the training data and were then compared to the "base" error, the error the model makes
+				if it predicts that all the apartments have the same mean price, and after trying all of them out the best performing models were:
+				\begin{itemize}
+					\item Random Forest Regressor
+					\item Linear Regression
+					\item K Nearest Neighbors Regressor
+					\item Support Vector Machines
+					\item Gradient Boosting Regressor
+				\end{itemize}
+
+
 			\subsubsection{Parameter Optimization}
+
+				\noindent
+				For each model class introduced in Section~\ref{subsubsec:Model Selection}, an extensive hyperparameter search was conducted using a predefined parameter grid.
+				The goal of this procedure was not only to improve predictive performance, but also to evaluate the sensitivity of each model to its most influential hyperparameters.
+
+				\medskip
+				\noindent
+				All hyperparameter combinations were evaluated using cross-validation on the training set.
+				In addition to the standard model formulations, we also evaluated variants where the target variable was transformed using a logarithmic mapping via a \texttt{TransformedTargetRegressor}.
+				This was motivated by the strong right-skewness typically observed in real estate price distributions (Figure~\ref{fig:pre_clean_price_numeric_distribution}).
+
+				\paragraph{Random Forest Regressor}
+				\noindent
+				For the Random Forest model, we explored a wide range of structural and regularization-related hyperparameters.
+				Specifically, the number of trees was varied to balance model stability and computational cost, while tree depth and minimum sample thresholds were adjusted to control overfitting.
+				Both standard Random Forest models and logarithmically transformed target variants were evaluated.
+
+				\begin{itemize}
+					\item Number of trees: $\{50, 100, 200, 500\}$
+					\item Maximum tree depth: $\{\texttt{None}, 2, 3, 5, 10, 20, 30\}$
+					\item Minimum samples per leaf: $\{1, 5, 10, 20\}$
+					\item Minimum samples for split: $\{2, 10, 20\}$
+					\item Feature selection strategy: $\{\texttt{None}, \texttt{sqrt}, \texttt{log2}\}$
+				\end{itemize}
+
+				\paragraph{Linear Regression}
+				\noindent
+				For Linear Regression, the focus was placed on feature selection rather than model regularization, as the underlying estimator is deterministic.
+				A univariate statistical feature selection method based on the F-test was employed to study the impact of dimensionality reduction.
+				Both raw and log-transformed target variants were considered.
+
+				\begin{itemize}
+					\item Feature selection method: \texttt{SelectKBest} with F-statistic
+					\item Number of selected features: $\{2, 3, 5, 10, 20, 30, \texttt{all}\}$
+				\end{itemize}
+
+				\paragraph{K-Nearest Neighbors Regressor}
+				\noindent
+				For the KNN model, hyperparameters governing neighborhood size, distance metrics, and weighting strategies were explored.
+				Given the sensitivity of KNN to scale and noise, both standard and transformed-target variants were evaluated.
+
+				\begin{itemize}
+					\item Number of neighbors: $\{1, 3, 5, 10, 20, 30, 50, 100\}$
+					\item Weighting scheme: $\{\texttt{uniform}, \texttt{distance}\}$
+					\item Search algorithm: \texttt{ball\_tree}, \texttt{kd\_tree}, \texttt{brute}, \texttt{auto}
+					\item Distance metric: $p \in \{1, 2\}$ (Manhattan and Euclidean)
+				\end{itemize}
+
+				\paragraph{Gradient Boosting Regressor}
+				\noindent
+				Histogram-based Gradient Boosting was chosen due to its efficiency on tabular data.
+				The hyperparameter grid focused on tree depth, learning rate, and the number of boosting iterations.
+				As with previous models, both standard and log-transformed target variants were examined.
+
+				\begin{itemize}
+					\item Maximum tree depth: $\{3, 5, 7\}$
+					\item Learning rate: $\{0.05, 0.1\}$
+					\item Number of boosting iterations: $\{200, 400\}$
+				\end{itemize}
+
+				\paragraph{Support Vector Regression}
+				\noindent
+				For Support Vector Regression, both linear and radial basis function (RBF) kernels were evaluated.
+				The regularization strength, $\epsilon$-insensitive loss width, and kernel parameters were systematically varied.
+				Log-transformed target variants were included to mitigate sensitivity to extreme price values.
+
+				\begin{itemize}
+					\item Regularization parameter $C$: $\{0.1, 1, 10, 100\}$
+					\item $\epsilon$-insensitive loss: $\{0.01, 0.1, 0.2, 0.5\}$
+					\item Kernel type: \texttt{linear}, \texttt{rbf}
+					\item RBF kernel coefficient $\gamma$: $\{\texttt{scale}, 0.01, 0.1, 1\}$
+				\end{itemize}
+
+				\medskip
+				\noindent
+				After completing the hyperparameter search, the best-performing configuration from each model class was selected based on cross-validation performance and subsequently compared on a held-out test set.
+				\noindent For every model mentioned in the section~\ref{subsubsec:Model Selection} we did hyperparameter (fine) tuning.
+				After which we took all the best performing models from each model class and compared them to one another.
 
 	\section{Results}
 		\subsection{Evaluation of best models}
