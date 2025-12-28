@@ -811,6 +811,50 @@
 			\subsubsection{Feature Creation}
 			\label{sec:Feature Creation}
 
+			\noindent When it comes to feature creation we had to find a way to create/extract some useful data from the coordinates of the apartments,
+			such that our machine learning model could use said new features to find the best hypothesis. \newline
+
+			\noindent What we ended up doing was, utilizing the \textbf{OSMNX} (Open Street Map Network X) library, collect the following nodes:
+			\begin{itemize}
+				\item hospitals
+				\item clinics
+				\item pharmacies
+				\item schools
+				\item universities
+				\item kindergartens
+				\item bus stops
+				\item tram stop
+				\item train stations
+				\item parking's
+				\item parks
+				\item playgrounds
+				\item malls
+				\item supermarkets
+				\item marketplaces
+				\item restaurants
+				\item cafés
+				\item places of worships
+				\item police stations
+				\item fire stations
+				\item post offices
+				\item sport centers
+				\item fitness centers
+				\item stadiums
+			\end{itemize}
+
+			\noindent Then we found the closest one of each of these nodes to an apartment, and add a new feature "closest\_X\_m". \newline
+
+			\noindent For example for bus stops, each apartment would get a new feature called the "closest\_bus\_stop\_m" which was the distances
+			of the closest bus stop from the apartment in meters.
+
+			\begin{figure}[H]
+				\centering
+				\includegraphics[width=0.29\textwidth]{Images/distribution_of_bus_stops}
+
+				\caption{All bus stops in Canton Sarajevo}
+				\label{fig:Bus Stops in Canton Sarajevo}
+			\end{figure}
+
 			\subsubsection{Feature Scaling}
 
 		\subsection{Methods}
