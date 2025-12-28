@@ -210,6 +210,8 @@
 
 
 		\subsection{Data pre-processing}
+		\label{subsec: Data pre-processing}
+
 			In this subsection we will cover some of the pre-processing steps that we have taken, such as:
 			\begin{itemize}
 				\item Data Cleaning
@@ -217,6 +219,7 @@
 			\end{itemize}
 
 			\subsubsection{Data Cleaning}
+			\label{subsubsec: Data Cleaning}
 				Lets first take a look at our categorical data.
 
 				\begin{figure}[h]
@@ -770,6 +773,39 @@
 		\subsection{Feature Engineering}
 			\subsubsection{Feature Selection}
 			\label{sec:Feature Selection}
+
+			\noindent When it comes to feature selection we do not have a lot of issues. Looking back at Table~\ref{tab:feature_domains} we can immidietly
+			see that we do not need things like 'title' and 'url'. \newline
+
+			\noindent As we talked about in section~\ref{subsubsec: Data Cleaning} the feature 'property_type' is not that useful and keeping it will cause
+			more trouble than good as it has a high class imbalance, hence we decided to get rid of it as well. \newline
+
+			\noindent The harder question that we asked ourselves was if we wanted to keep the coordinates (longitude and latitude) or not,
+			since a lot of apartments would be removed if we were to get rid of coordinates as there was no way to impute the coordinates.
+			And to answer this question we looked back about what we said about the 'municipality' feature; when thinking of how someone would
+			price their own home we though, okay if the houses are approximately in the same location, look the same, and so on, that their prices
+			would be close. \newline
+
+			\noindent However, the main issue with this was the sheer fact that without coordinates we only had to rely on the municipality feature for the
+			general location and other available features on hand. The problem? Municipality is not a good indicator of location-based price variation.
+			Figure~\ref{fig: Novi Grad} shows a municipality that contains multiple apartments equal when it comes to features, but different when it comes
+			to prices.
+
+			\begin{figure}[H]
+					\centering
+					\includegraphics[width=0.7\textwidth]{../ProjectPitch/Images/NoviGradMap}
+					\caption{Municipality of Novi Grad Sarajevo}
+					\label{fig: Novi Grad}
+			\end{figure}
+
+			\noindent And in practice when we tried to train models on just these features themselves the models performed horribly. On data that models
+			never saw before the best values we got were all around $R^2 = 0.12$! And this made us realize that coordinates had to stay. \newline
+
+			\noindent Whether we should keep municipalities or not as features, we decided to stratify the train and test split using the municipality
+			feature as this would make sure that we got a nice sample of apartments around the entire canton, however when it came to keeping it for training
+			we did some testing and models performed way better without it then with it. \newline
+
+			\noindent Another important thing to mention is that the models themselves also did feature selection as a part of hyperparameter tuning.
 
 			\subsubsection{Feature Creation}
 			\label{sec:Feature Creation}
