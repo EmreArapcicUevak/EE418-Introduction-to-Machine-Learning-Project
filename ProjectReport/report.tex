@@ -63,7 +63,7 @@
 \graphicspath{{./Images/}}
 
 \AddToShipoutPictureBG{
-	\ifthenelse{\value{page}=1}{}{%
+	\ifthenelse{\value{page}<3}{}{%
 		\begin{tikzpicture}[remember picture,overlay]
 			\node [opacity=0.1, at=(current page.center)] {
 				\includegraphics[width=0.5\paperwidth]{CustomImages/IUS Logo}
@@ -660,6 +660,112 @@
 					\caption{Comparison of all and corrected apartments}
 					\label{fig:Comparison Of All and Corrected apartments}
 				\end{figure}
+
+
+				\noindent In Figure~\ref{fig:Comparison Of All and Corrected apartments} we can see on the left a plot of all of the apartments
+				zoomed in onto the Canton Sarajevo, and on the right we can see all the \emph{corrected} apartments. But what does corrected apartments
+				mean? \newline
+
+				\noindent As can be seen from the Figure~\ref{fig:Comparison Of All and Corrected apartments} there are some apartments that lie outside the
+				Canton Sarajevo's boundary. In the given figure we can see that some apartments do fall outside of the cantons bondaries but there is something
+				we cannot see. \newline
+
+				\noindent Some of the apartments we have in our dataset are positioned in Saudi Arabia, Banja Luka, Vienna, \ldots etc. These are clearly either
+				mistakes, or what is more likely is for them to be locations of agencies so we ended up removing these apartments. \newline
+
+				\noindent However, this is not the only problem that there is. If we take a look at the apartments inside the canton there still can be
+				miss-classified and or miss-labeled apartments. The way we checked for this this and fixed it was by looking in which municipality the
+				apartment was located at, compared to what it was actually labeled as. This gave us outliers that were either human error or possible
+				agencies selling apartments further from them.
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{CustomImages/Removed_Apartments}
+					\caption{Removed Apartments}
+					\label{fig:Removed Apartments}
+				\end{figure}
+
+				\noindent Figure~\ref{fig:Removed Apartments} shows all the apartments that were removed because they were not in municipalities
+				that they were advertised to be. And, as can be seen, this seems to have worked. A lot of apartments that were removed were positioned
+				kilometers from the closest boundary of their given municipality which highly indicated that these locations were actually locations of agencies. \newline
+
+				\noindent However, this is not the only case. There are actually some apartment that lie really close to the border which are miss labeled, and
+				this is most certainly due to human error. Figure~\ref{fig:MisLabeled Aparmtnet} shows exactly this case, this apartment was labeled to be in
+				the municipality of Illid\v{z}a but was actually in municipality of Had\v{z}i\'{c}i. But the apartment lies 9 meters away from the boundary. This
+				can be because of the error of coordinates not being precise enough, or it could be human error but whatever the case is these apartments should
+				be added back in.
+
+				\begin{figure}[H]
+					\centering
+					\includegraphics[width=0.5\textwidth]{CustomImages/Miss_Labeled_Aparmtent}
+					\caption{Mislabeled apartment}
+					\label{fig:MisLabeled Apartment}
+				\end{figure}
+	
+				\noindent Okay now we know that we should add apartments that were mislabeled close to their border, but the question is how far can an
+				apartment be to the border for us to label it as human or precision error?
+				In other words how far a given apartment be from their claimed municipality until it gets removed? \newline
+	
+				\noindnet Well there is no hard given answer, we know for a fact that if it is really far off, we are talking kilometer and up, that it should
+				get removed. To see how many apartments we captured with distances we decided to plot the result for distances: 50, 100, 200, and 300 meters.
+	
+				\begin{figure}[H]
+					\centering
+
+					\begin{subfigure}[t]{0.40\textwidth}
+						\centering
+						\includegraphics[width=\linewidth]{images/distribution_of_removed_apartments_close_to_border_pie_50}
+						\caption{value counts of apartments 50m away}
+						\label{fig: value counts for 50m}
+					\end{subfigure}
+					\hfill
+					\begin{subfigure}[t]{0.40\textwidth}
+						\centering
+						\includegraphics[width=\linewidth]{images/distribution_of_removed_apartments_close_to_border_pie_100}
+						\caption{value counts of apartments 100m away}
+						\label{fig: value counts for 100m}
+					\end{subfigure}
+
+					\caption{Value Counts per distance}
+					\label{fig:Value Counts Per Distance 50 100}
+				\end{figure}
+
+				\begin{figure}[H]
+					\centering
+
+					\begin{subfigure}[t]{0.40\textwidth}
+						\centering
+						\includegraphics[width=\linewidth]{images/distribution_of_removed_apartments_close_to_border_pie_200}
+						\caption{value counts of apartments 200m away}
+						\label{fig: value counts for 200m}
+					\end{subfigure}
+					\hfill
+					\begin{subfigure}[t]{0.40\textwidth}
+						\centering
+						\includegraphics[width=\linewidth]{images/distribution_of_removed_apartments_close_to_border_pie_300}
+						\caption{value counts of apartments 300m away}
+						\label{fig: value counts for 300m}
+					\end{subfigure}
+
+					\caption{Value Counts per distance}
+					\label{fig:Value Counts Per Distance 200 300}
+				\end{figure}
+
+				\pagebreak
+
+				\noindent Since the jumps between 50, 100, and 200 are small, and the only major jump comes up when we check for apartments $300m$ away
+				from the borders, we decided to go with those apartments, and they did provide the best results. The apartments that we decided to add
+				back in can all be seen in Figure~\ref{fig:Corrected Apartments 300m}
+
+				\begin{figure}[H]
+					\centering
+					\includegraphics[width=\textwidth]{CustomImages/corrected_apartments}
+					\caption{Corrected Apartments}
+					\label{fig:Corrected Apartments 300m}
+				\end{figure}
+
+				\noindent We ended up just changing the municipalities of these apartments to their actual municipality that they were located in and added
+				them back to the dataset.
 
 		\subsection{Feature Engineering}
 			\subsubsection{Feature Selection}
