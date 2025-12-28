@@ -580,21 +580,99 @@
 				\pagebreak
 
 			\subsubsection{Missing Values}
+				Let's first plot out to see what amounts of missing features do we exactly have in our dataset that is currently missing,
+				and then we will try to see if there are any correlations betweens features that are missing.
+
 				\begin{figure}[h]
 					\centering
 					\includegraphics[width=\textwidth]{Images/missing_features_bar}
 					\caption{Bar plot representation of missing features}
 					\label{fig:Missing Feature Bar Plot}
 				\end{figure}
-	
+
+				\noindent As we can see from Figure~\ref{fig:Missing Feature Bar Plot}~we do have around $1806$ entries, however there are certain things that we just
+				cannot work with. First if we take a look at the price, which is our \emph{target variable}, we will see that we only have 1428. This is to be
+				expected as one of the issues we were trying to solve was the fact that some listings do not have a price. There is nothing that we can really
+				do about the missing prices as imputing them will add unwanted bias. \newline
+
+				\noindent Another issue with imputation of the prices is the fact that the distributions of features of apartments with and without the prices are not the same
+				for every feature, meaning they don't follow the exact same trend. Using something like K-NN imputer could work but this would cause data leakage
+				as we would have to impute looking at the entire dataset. \newline
+
+				\noindent Another thing we have missing is the number of rooms.
+				Luckily for us, we do not have a lot of apartments with missing rooms and unlike prices we can actually impute these with relatively low risk.
+				However, there is one issue and it has to do with the next variable.
+
+				\noindent Another concern, apart from prices, is actually the coordinates. As can be seen we only have 1175 apartments that have coordinate,
+				and we still don't know how many of the apartment with coordinate have prices. To be sure lets plot a matrix plot of the missing values and a
+				heatmap to see if there could be any correlation between them.
+
+				\begin{figure}[H]
+					\centering
+					\includegraphics[width=\textwidth]{Images/missing_features_matrix}
+					\caption{Matrix plot representation of missing features}
+					\label{fig:Missing Feature Matrix Plot}
+				\end{figure}
+
+				\noindent Sadly, as can be seen in Figure~\ref{fig:Missing Feature Matrix Plot}, there does not seem to be overlap between missing prices
+				and coordinates.
+				This means that the total number of apartments we actually have is much lower.
+				But let's see how much lower, and let's also check to see if there are any correlations
+
+				\begin{figure}[H]
+					\centering
+					\includegraphics[width=.8\textwidth]{Images/missing_features_heatmap}
+					\caption{Heat map of missing feature}
+					\label{fig:Missing Feature Heat Map}
+				\end{figure}
+				\pagebreak
+
+				\noindent Figure~\ref{fig:Missing Feature Heat Map} tells us something we kind of expected to see.
+				As soon as \emph{latitude} is missing \emph{longitude} is missing as well.
+				This makes sense since the way coordinate were collected if there was no google map widget found neither latitude or longitude was collected. \newline
+
+				\noindent The other non-surprising fact was that when \emph{price} was absent \emph{price_per_m2} was also absent which makes sense. \newline
+
+				\noindent And Finally there seems to be a slight negative correlation between rooms and the coordinates, as if coordinates are missing there is
+				a slightly higher chance that we will have the value for rooms.
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/missing_feature_combinations_bar}
+					\caption{Combination of missing feature counts}
+					\label{fig:Missing Feature Combinations Plot}
+				\end{figure}
+
+				\noindent As can be seen in Figure~\ref{fig:Missing Feature Combinations Plot} We will lose a lot of apartments if we take out
+				the apartments with no coordinates. This made us think of dropping the coordinates as we know that a lot of public models do not
+				utilize coordinates.
+				However, we will see in section~\ref{sec:Feature Selection} why we cannot drop this feature.
+
+				\pagebreak
+
+				\noindent Before we can conclude this section there is another important thing that we need to talk about, and it concerns the coordinates.
+				When we took a look at some of the apartments with coordinates we plotted them onto a map of the Sarajevo Canton, because we took the listings
+				only from that region, and got the following image.
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[width=\textwidth]{Images/Comparison_Of_All_and_Corrected_apartments}
+					\caption{Comparison of all and corrected apartments}
+					\label{fig:Comparison Of All and Corrected apartments}
+				\end{figure}
+
 		\subsection{Feature Engineering}
 			\subsubsection{Feature Selection}
+			\label{sec:Feature Selection}
+
 			\subsubsection{Feature Creation}
+			\label{sec:Feature Creation}
+
 			\subsection{Feature Scaling}
 
 		\subsection{Methods}
 			\subsubsection{Model Selection}
-			\subsubsection{Paramater Optimization}
+			\subsubsection{Parameter Optimization}
 
 	\section{Results}
 		\subsection{Evaluation of best models}
