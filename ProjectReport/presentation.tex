@@ -163,6 +163,258 @@
         \end{columns}
       \end{frame}
 
+      \begin{frame}{Feature Analysis: Condition}
+        \only<1> {
+          \includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_condition_via_ad_type}
+        }
+
+        \only<2> {
+          \begin{table}[h]
+            \centering
+            \caption{Value counts of condition by ad\_type}
+            \label{tab:pre_clean_count_of_condition}
+
+            \begin{subtable}{0.45\textwidth}
+                \centering
+                \input{Tables/pre_clean_count_of_condition_of_rent}
+
+                \caption{Value Counts for Rents}
+                \label{tab:pre_clean_count_of_condition_of_rent}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+                \centering
+                \input{Tables/pre_clean_count_of_condition_of_sale}
+
+                \caption{Value Counts for Sales}
+                \label{tab:pre_clean_count_of_condition_of_sale}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Municipality}
+
+        \only<1> {
+          \includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_municipality_via_ad_type}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Value counts of municipality by ad\_type}
+            \label{tab:pre_clean_count_of_municipality}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_municipality_of_rent}
+              \caption{Value Counts for Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_municipality_of_sale}
+              \caption{Value Counts for Sales}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Property Type}
+
+        \only<1> {
+          \includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_property_type_via_ad_type}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Value counts of property\_type by ad\_type}
+            \label{tab:pre_clean_count_of_property_type}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_property_type_of_rent}
+              \caption{Value Counts for Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_property_type_of_sale}
+              \caption{Value Counts for Sales}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Heating}
+
+        \only<1> {
+          \includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_heating_via_ad_type}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Value counts of heating by ad\_type}
+            \label{tab:pre_clean_count_of_heating}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_heating_of_rent}
+              \caption{Value Counts for Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_heating_of_sale}
+              \caption{Value Counts for Sales}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Equipment}
+
+        \only<1> {
+          \includegraphics[width=\textwidth]{Images/pre_clean_count_plot_of_equipment_via_ad_type}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Value counts of equipment by ad\_type}
+            \label{tab:pre_clean_count_of_equipment}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_equipment_of_rent}
+              \caption{Value Counts for Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_count_of_equipment_of_sale}
+              \caption{Value Counts for Sales}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Level}
+
+        \only<1> {
+          \centering
+          \includegraphics[height=0.8\textheight]{Images/pre_clean_level_distribution}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Level distribution}
+            \label{tab:pre_clean_level_distribution_statistics}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_level_distribution_statistics_for_rent}
+              \caption{Level Distribution of Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_level_distribution_statistics_for_sale}
+              \caption{Level Distribution of Sales}
+            \end{subtable}
+          \end{table}
+        }
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Price}
+
+        \only<1> {
+          \centering
+          \includegraphics[height=0.8\textheight]{Images/pre_clean_price_numeric_distribution}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Price distribution}
+            \label{tab:pre_clean_price_numeric_distribution_statistics}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_price_numeric_distribution_statistics_for_rent}
+              \caption{Price Distribution of Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_price_numeric_distribution_statistics_for_sale}
+              \caption{Price Distribution of Sales}
+            \end{subtable}
+          \end{table}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Square Meters}
+
+        \only<1> {
+          \centering
+          \includegraphics[height=0.8\textheight]{Images/pre_clean_square_m2_distribution}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{$m^2$ distribution}
+            \label{tab:pre_clean_square_m2_distribution_statistics}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_square_m2_distribution_statistics_for_rent}
+              \caption{$m^2$ Distribution of Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_square_m2_distribution_statistics_for_sale}
+              \caption{$m^2$ Distribution of Sales}
+            \end{subtable}
+          \end{table}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Feature Analysis: Rooms}
+
+        \only<1> {
+          \centering
+          \includegraphics[height=0.8\textheight]{Images/pre_clean_rooms_distribution}
+        }
+
+        \only<2> {
+          \begin{table}
+            \centering
+            \caption{Rooms distribution}
+            \label{tab:pre_clean_rooms_distribution_statistics}
+
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_rooms_distribution_statistics_for_rent}
+              \caption{Rooms Distribution of Rents}
+            \end{subtable}
+            \hfill
+            \begin{subtable}{0.45\textwidth}
+              \centering
+              \input{Tables/pre_clean_rooms_distribution_statistics_for_sale}
+              \caption{Rooms Distribution of Sales}
+            \end{subtable}
+          \end{table}
+        }
+
+      \end{frame}
     \subsection{Handling missing values}
 
   \section{Feature Engineering}
