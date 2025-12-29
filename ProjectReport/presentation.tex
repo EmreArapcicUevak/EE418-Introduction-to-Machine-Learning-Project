@@ -121,9 +121,48 @@
         Long answer\ldots The data available on the registry, while plentiful, lacks a lot of details needed for us to train a machine learning model \newline \pause
 
         This is why, the only available work done on this topic was just a paper demonstrating the price changes and average prices of real estate sales across the region.
-
       \end{frame}
+
+      \begin{frame}{So how did we get our data?}
+        Because of the lack of data available to the public we went with webscraping the data off popular websites for real estate in Bosnia:
+        \begin{itemize}
+          \item[$\bullet$] OLX.ba
+          \item[$\bullet$] Nekretnine.ba
+        \end{itemize}
+
+        \vspace{0.5cm}
+        \pause
+        Out of which we were only able to utilize \emph{OLX.ba} as we lacked the time to further pre-process the data from Nekretnine.ba
+      \end{frame}
+
     \subsection{Overview of the gathered data and cleaning}
+      \begin{frame}{What were we able to gather}
+        The details we were able to collect about every apartment are:
+        \begin{columns}[T]
+            \column{0.5\textwidth}
+            \begin{itemize}
+              \item[$\bullet$] title
+              \item[$\bullet$] url
+              \item[$\bullet$] price
+              \item[$\bullet$] municipality
+              \item[$\bullet$] rooms
+              \item[$\bullet$] $m^2$
+              \item[$\bullet$] conditions
+            \end{itemize}
+
+            \column{0.5\textwidth}
+            \begin{itemize}
+              \item[$\bullet$] ad type
+              \item[$\bullet$] property type
+              \item[$\bullet$] equipment
+              \item[$\bullet$] level
+              \item[$\bullet$] heating
+              \item[$\bullet$] latitude
+              \item[$\bullet$] longitude
+            \end{itemize}
+        \end{columns}
+      \end{frame}
+
     \subsection{Handling missing values}
 
   \section{Feature Engineering}
