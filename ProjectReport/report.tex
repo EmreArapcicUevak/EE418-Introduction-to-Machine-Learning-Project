@@ -63,7 +63,7 @@
 \graphicspath{{./Images/}}
 
 \AddToShipoutPictureBG{
-	\ifthenelse{\value{page}<3}{}{%
+	\ifthenelse{\value{page}<4}{}{%
 		\begin{tikzpicture}[remember picture,overlay]
 			\node [opacity=0.1, at=(current page.center)] {
 				\includegraphics[width=0.5\paperwidth]{CustomImages/IUS Logo}
@@ -1192,7 +1192,22 @@
 		\pagebreak
 
 	\subsection{Model Selection}
+		\noindent When it came to model selection we usually had two big criteria:
+		\begin{enumerate}
+			\item The model should generalize well, hence it should perform good on testing data
+			\item The model should have a smaller error on the test data relative to the baseline error (since the baseline error was taken from the test data)
+		\end{enumerate}
 
+		\noindent This means that we should first look at tables~\ref{tab:model_performance_sales_R2} and~\ref{tab:model_performance_rents_R2} and pick the ones that had the highest $R^2$ score
+		as this meant that the model was able to explain most of the variance that appeared in the data that it has never seen before. \newline
+
+		\noindent If we have had a hard time picking between the models based just on $R^2$ score, we would then go to tables~\ref{tab:model_performance_sales_NMAE} and~\ref{tab:model_performance_rents_NMAE}
+		and pick out models that had the lowest Mean Absolute Error, because these models made the smallest mistakes and if this wasn't enough we also had tables~\ref{tab:model_performance_sales_NRMSE}
+		and~\ref{tab:model_performance_rents_NRMSE} to help us make decisions based on the Root Mean Square Error. \newline
+
+		\noindent And on top of that we had plots of comparing each models Predicted Value to the True Value (Ground Truth). \newline
+
+		\noindent For \textbf{sales} we decided to go with the \emph{Support Vector Machine}, and for \textbf{rents} we decided to go with \emph{K-Nearest Neighbors}
 	\section{Conclusion}
 	\section{Work Distribution}
 \end{document}
