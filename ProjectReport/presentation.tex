@@ -2,14 +2,39 @@
 %! Date = 29. 12. 2025.
 
 % Preamble
-\documentclass[11pt]{article}
+\documentclass{beamer}
+
+\usetheme{Madrid} % Clean theme; alternatives: "metropolis", "Boadilla", "CambridgeUS"
+\usecolortheme{seahorse}
 
 % Packages
 \usepackage{amsmath}
 
+
+\title[\textit{Sarajevo Apartment Price prediction}] % Short title for sidebar
+{Project Presentation: \textit{Sarajevo Apartment Price prediction}}
+\author[Emre, Mustafa]{Emre Arapčić-Uevak \and Mustafa Sinanovic}
+\date{\today}
+\institute[IUS]{
+  International University of Sarajevo \\
+  Faculty of Engineering and Natural Sciences
+}
+
 % Document
 \begin{document}
 
+% Title Slide
+\frame{\titlepage}
 
+\begin{frame}{What will be covered?}
+  \tableofcontents
+\end{frame}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}{Table of Contents}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
 
 \end{document}
