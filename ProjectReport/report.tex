@@ -39,6 +39,7 @@
 \usepackage{tabularx}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{qrcode}
 
 % Setting up the fancy page style
 \fancypagestyle{customStyle}{
@@ -1235,5 +1236,38 @@
 		\noindent Overall considering the challenges of working with Bosnia and Herzegovina, mainly the lack of data publicly available, we are quite happy to have done this work
 		especially since there were no other papers covering this exact topic of predicting the housing prices in Bosnia and Herzegovina.
 
-	\section{Distribution}
+	\section{Distribution of work}
+	\begin{table}[H]
+		\centering
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabularx}{\textwidth}{|l|X|}
+			\hline
+			\textbf{Team member name} & \textbf{Specific tasks completed (should not be ambiguous)} \\
+			\hline
+			Emre Arap\v{c}i\'{c}-Uevak &
+			Exploratory Data Analysis (statistical summaries, visualizations, missing value analysis) \newline
+			Feature Engineering (feature selection, feature creation, preprocessing pipelines) \newline
+			Machine Learning (model selection, hyperparameter tuning, cross-validation, test evaluation) \newline
+			Performance analysis and result interpretation \newline
+			Preparation of figures, tables, and final report. \\
+			\hline
+			Mustafa Sinanovi\'{c} &
+			Web scraping and data collection \newline
+			Assistance with exploratory data analysis \newline
+			Development of a mobile application \newline
+			Integration of the trained machine learning model into the mobile application backend \\
+			\hline
+		\end{tabularx}
+		\caption{Work Distribution Table}
+		\label{tab:work dist}
+	\end{table}
+
+	\section{Resources}
+		\noindent All of the code, documentation, and even the mobile app can be found on our \href{https://github.com/EmreArapcicUevak/EE418-Introduction-to-Machine-Learning-Project}{GitHub Repository}:
+		\begin{figure}[h]
+			\centering
+			\qrcode[height=3cm]{https://github.com/EmreArapcicUevak}
+			\caption{QR Code to our repository}
+			\label{fig:qr repo}
+		\end{figure}
 \end{document}
