@@ -654,6 +654,7 @@
 				\pagebreak
 
 			\subsubsection{Deeper look at data cleaning}
+			\label{subsubsec:Deep look at data cleaning}
 				\noindent Before we can conclude this section there is another important thing that we need to talk about, and it concerns the coordinates.
 				When we took a look at some of the apartments with coordinates we plotted them onto a map of the Sarajevo Canton, because we took the listings
 				only from that region, and got the following image.
@@ -1208,6 +1209,31 @@
 		\noindent And on top of that we had plots of comparing each models Predicted Value to the True Value (Ground Truth). \newline
 
 		\noindent For \textbf{sales} we decided to go with the \emph{Support Vector Machine}, and for \textbf{rents} we decided to go with \emph{K-Nearest Neighbors}
+
 	\section{Conclusion}
-	\section{Work Distribution}
+		\noindent This project really opened up our eyes to what people in the profession of Machine Learning actually do, we ended up learning how to use webscraping to
+		gather data, to explore the data to get a better insight, we learned a lot of new libraries such as geo-pandas and OSMNX. This project was also very handy
+		and practical as it also made us think how could we gather information good enough for our model to learn crucial things. \newline
+
+		\noindent The first time we tried to train machine learning models without spacial data and saw how badly the models generalized we knew we had to somehow
+		find a way to give it more valuable data as we would end up cutting a lot of apartments.
+		Here we really learned that quality is as important if not more than quantity of data. Another example of this was actually even after getting our spacial data in the model did perform
+		much better but for some reason it still was not perform as good as we had hoped for it to do.
+		When we started to look deeper into why this could have happened, we got an idea to simply plot out the apartment to see a general image of the apartments, and this is when we saw
+		apartments that were being sold in Sarajevo but their location marked them to be way out of Sarajevo and sometimes even outside of Bosnia and Herzegovina!
+		So we knew we had to start cleaning up the dataset even more, which did scare us at first because we were already at a small number of apartments and this would end up cutting it even more,
+		but after doing everything we talked about in sections~\ref{subsubsec: Data Cleaning} and~\ref{subsubsec:Deep look at data cleaning} we got an even better result, even though we had a much lower
+		number of apartments then at the start! \newline
+
+		\pagebreak
+		\noindent There were other things that we also wanted to try out but we just did not have the time. We also wanted to try to possibly use models such as the KNN Imputer to try to
+		impute the missing "room" values. \newline
+
+		\noindent Another thing that we wanted to do was change the Web Scraping Code to also take out the given address of a place and use OSMNX to try to partially guess the coordinates
+		of the apartments, but sadly we did not have time to change and rerun web scraping as it did take hours to finish. \newline
+
+		\noindent Overall considering the challenges of working with Bosnia and Herzegovina, mainly the lack of data publicly available, we are quite happy to have done this work
+		especially since there were no other papers covering this exact topic of predicting the housing prices in Bosnia and Herzegovina.
+
+	\section{Distribution}
 \end{document}
