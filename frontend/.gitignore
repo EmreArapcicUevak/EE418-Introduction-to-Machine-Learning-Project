@@ -1,0 +1,97 @@
+# ==========================================
+# React Native / Expo Frontend .gitignore
+# ==========================================
+
+# Dependencies
+# ------------
+node_modules/
+.pnp
+.pnp.js
+
+# Expo
+# ----
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native Builds
+# -------------
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.ipa
+*.apk
+*.aab
+.kotlin/
+
+# Generated Native Folders
+# -------------------------
+/ios
+/android
+
+# Metro Bundler
+# -------------
+.metro-health-check*
+.metro-cache/
+
+# Testing
+# -------
+coverage/
+.nyc_output/
+
+# Debug
+# -----
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Environment Variables
+# ---------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# TypeScript
+# ----------
+*.tsbuildinfo
+.tsbuildinfo
+
+# Build Output
+# ------------
+build/
+dist-ssr/
+
+# Temporary Files
+# ---------------
+.temp/
+.tmp/
+*.tmp
+app-example
+
+# Lock Files (optional - uncomment if using different package manager)
+# ---------------------------------------------------------------------
+# yarn.lock
+# package-lock.json
+# pnpm-lock.yaml
+
+# Storybook
+# ---------
+storybook-static/
+
+# Bundle Analyzer
+# ---------------
+.next-bundle-analyzer/
+
+# Turborepo
+# ---------
+.turbo/
