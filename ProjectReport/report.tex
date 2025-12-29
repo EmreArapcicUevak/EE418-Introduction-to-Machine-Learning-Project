@@ -961,6 +961,91 @@
 				After which we took all the best performing models from each model class and compared them to one another.
 
 	\section{Results}
+		\subsection{Best models}
+			In this section we will look at the parameters of the models that have had the best CV $R^2$ score.
+			\subsubsection{Linear Regression}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Linear Regression hyperparameters for apartment sale price prediction}
+					\label{tab:best_lr_sales}
+					\input{Tables/best_LinearRegression_sales.tex}
+				\end{table}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Linear Regression hyperparameters for apartment rental price prediction}
+					\label{tab:best_lr_rents}
+					\input{Tables/best_LinearRegression_rents.tex}
+				\end{table}
+
+
+			\subsubsection{Random Forest}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Random Forest hyperparameters for apartment sale price prediction}
+					\label{tab:best_rf_sales}
+					\input{Tables/best_RandomForest_sales.tex}
+				\end{table}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Random Forest hyperparameters for apartment rental price prediction}
+					\label{tab:best_rf_rents}
+					\input{Tables/best_RandomForest_rents.tex}
+				\end{table}
+
+
+			\subsubsection{K-Nearest Neighbors}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best K-Nearest Neighbors hyperparameters for apartment sale price prediction}
+					\label{tab:best_knn_sales}
+					\input{Tables/best_KNeighborsRegressor_sales.tex}
+				\end{table}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best K-Nearest Neighbors hyperparameters for apartment rental price prediction}
+					\label{tab:best_knn_rents}
+					\input{Tables/best_KNeighborsRegressor_rents.tex}
+				\end{table}
+
+
+			\subsubsection{Support Vector Regression}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Support Vector Regression hyperparameters for apartment sale price prediction}
+					\label{tab:best_svr_sales}
+					\input{Tables/best_SVR_sales.tex}
+				\end{table}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Support Vector Regression hyperparameters for apartment rental price prediction}
+					\label{tab:best_svr_rents}
+					\input{Tables/best_SVR_rents.tex}
+				\end{table}
+
+
+			\subsubsection{Gradient Boosting}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Gradient Boosting hyperparameters for apartment sale price prediction}
+					\label{tab:best_gb_sales}
+					\input{Tables/best_GradientBoostingRegressor_sales.tex}
+				\end{table}
+
+				\begin{table}[H]
+					\centering
+					\caption{Best Gradient Boosting hyperparameters for apartment rental price prediction}
+					\label{tab:best_gb_rents}
+					\input{Tables/best_GradientBoostingRegressor_rents.tex}
+				\end{table}
 		\subsection{Evaluation of best models}
 		\subsection{Model Selection}
 
