@@ -1046,7 +1046,38 @@
 					\label{tab:best_gb_rents}
 					\input{Tables/best_GradientBoostingRegressor_rents.tex}
 				\end{table}
+
 		\subsection{Evaluation of best models}
+			\noindent Now that we have the best models of each model class we need a way to choose the best performing one of them all. \newline
+
+			\noindent To do this we will check scores like:
+			\begin{enumerate}
+				\item Root-Mean-Square-Error (RMSE)
+				\item Mean-Absolute-Error (MAE)
+				\item $R^2$ score
+			\end{enumerate}
+
+			\noindent On both train, using cross validation, and test sets. Our goal is to see how well the models generalize and to get the average error the model makes as low as possible.
+
+			\input{Tables/score_sales_report_table_finale}
+
+			\input{Tables/score_rents_report_table_finale}
+
+			\subsubsection{Linear Regression}
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[0.85\textwidth]{Images/Predicted_vs_True_for_LinearRegression_sales.pdf}
+					\caption{Predicted versus true apartment sale prices using Linear Regression}
+					\label{fig:pred_vs_true_lr_sales}
+				\end{figure}
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[0.85\textwidth]{Images/Predicted_vs_True_for_LinearRegression_rents.pdf}
+					\caption{Predicted versus true apartment rental prices using Linear Regression}
+					\label{fig:pred_vs_true_lr_rents}
+				\end{figure}
 		\subsection{Model Selection}
 
 	\section{Conclusion}
