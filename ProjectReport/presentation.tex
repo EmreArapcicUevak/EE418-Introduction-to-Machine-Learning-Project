@@ -477,6 +477,43 @@
 
   \section{Feature Engineering}
     \subsection{Feature Selection}
+      \begin{frame}{Feature Selection}
+
+        \begin{itemize}
+          \item \textbf{Removed features}
+            \begin{itemize}
+              \item \texttt{title}, \texttt{url} (non-informative)
+              \item \texttt{property\_type} (high class imbalance, redundant)
+            \end{itemize}
+
+          \vspace{0.4em} \pause
+
+          \item \textbf{Location-related features}
+            \begin{itemize}
+              \item Municipality alone is insufficient to capture price variation
+              \item Coordinates (\texttt{latitude}, \texttt{longitude}) provide fine-grained location information
+              \item Models trained without coordinates performed poorly (\(R^2 \approx 0.27\))
+            \end{itemize}
+
+          \vspace{0.4em} \pause
+
+          \item \textbf{Final decision}
+            \begin{itemize}
+              \item Keep geographic coordinates
+              \item Exclude municipality from model training
+              \item Use municipality only for stratified train–test splitting
+            \end{itemize}
+
+          \vspace{0.4em} \pause
+
+          \item \textbf{Additional note}
+            \begin{itemize}
+              \item Feature selection also performed automatically during hyperparameter tuning
+            \end{itemize}
+
+        \end{itemize}
+      \end{frame}
+
     \subsection{Feature Creation}
       \begin{frame}{Using coordiantes}
         So we showed that coordinates are an important feature to have, however we did not cover how to use them. \newline \pause
