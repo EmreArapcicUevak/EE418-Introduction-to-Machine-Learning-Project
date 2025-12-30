@@ -415,7 +415,66 @@
         }
 
       \end{frame}
+
     \subsection{Handling missing values}
+      \begin{frame}{What missing values do we have?}
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\textwidth]{Images/missing_features_bar}
+          \caption{Bar plot representation of missing features}
+          \label{fig:Missing Feature Bar Plot}
+        \end{figure}
+      \end{frame}
+
+    \begin{frame}{Any corelation?}
+      \only<1>{
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=\textwidth]{Images/missing_features_matrix}
+          \caption{Matrix plot representation of missing features}
+          \label{fig:Missing Feature Matrix Plot}
+        \end{figure}
+      }
+
+      \only<2>{
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=.8\textwidth]{Images/missing_features_heatmap}
+          \caption{Heat map of missing feature}
+          \label{fig:Missing Feature Heat Map}
+        \end{figure}
+      }
+    \end{frame}
+
+    \begin{frame}{Some issues}
+      \only<1>{
+        \begin{figure}[h]
+          \centering
+          \includegraphics[width=\textwidth]{Images/missing_feature_combinations_bar}
+          \caption{Combination of missing feature counts}
+          \label{fig:Missing Feature Combinations Plot}
+        \end{figure}
+      }
+
+      \pause
+      \only<2->{
+        If we take a look at all possible combinations of values that we can disregard, we can see that if we get rid of apartments that lack coordinate points, we will
+        lose a lot of data. \newline \pause
+
+        Now the question is, is the loss of these apartments worth it? \pause \newline
+
+        In other words, are coordinates of the apartment needed?
+      }
+    \end{frame}
+
+    \begin{frame}
+      \begin{table}
+        \centering
+        \input{CustomTables/score_report_table_R2}
+        \caption{Score of no coordinates models}
+        \label{}
+      \end{table}
+    \end{frame}
 
   \section{Feature Engineering}
     \subsection{Feature Selection}
