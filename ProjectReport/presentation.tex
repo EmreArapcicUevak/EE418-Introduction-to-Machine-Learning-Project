@@ -1,5 +1,4 @@
-%! Author = emrearapcic-uevak
-%! Date = 29. 12. 2025.
+%! AuthTables/best_LinearRegression_rents2. 2025.
 
 % Preamble
 \documentclass{beamer}
@@ -568,7 +567,313 @@
 
   \section{Results}
     \subsection{Best Models}
+      \begin{frame}{Linear Regression}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_LinearRegression_sales}
+          \caption{Best Linear Regression hyperparameters for apartment sale price prediction}
+          \label{tab:best_lr_sales}
+        \end{table}
+
+        \vspace{0.8em}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_LinearRegression_rents}
+          \caption{Best Linear Regression hyperparameters for apartment rental price prediction}
+          \label{tab:best_lr_rents}
+        \end{table}
+      \end{frame}
+
+      \begin{frame}{Random Forest}
+
+        \begin{table}
+          \centering
+          \resizebox{\textwidth}{!}{
+            \input{Tables/best_RandomForest_sales}
+          }
+          \caption{Best Random Forest hyperparameters for apartment sale price prediction}
+          \label{tab:best_rf_sales}
+        \end{table}
+
+        \vspace{0.8em}
+
+        \begin{table}
+          \centering
+          \resizebox{\textwidth}{!}{
+            \input{Tables/best_RandomForest_rents}
+          }
+          \caption{Best Random Forest hyperparameters for apartment rental price prediction}
+          \label{tab:best_rf_rents}
+        \end{table}
+
+      \end{frame}
+
+      \begin{frame}{K-Nearest Neighbors}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_KNeighborsRegressor_sales}
+          \caption{Best K-Nearest Neighbors hyperparameters for apartment sale price prediction}
+          \label{tab:best_knn_sales}
+        \end{table}
+
+        \vspace{0.8em}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_KNeighborsRegressor_rents}
+          \caption{Best K-Nearest Neighbors hyperparameters for apartment rental price prediction}
+          \label{tab:best_knn_rents}
+        \end{table}
+
+      \end{frame}
+
+      \begin{frame}{Support Vector Regression}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_SVR_sales.tex}
+          \caption{Best Support Vector Regression hyperparameters for apartment sale price prediction}
+          \label{tab:best_svr_sales}
+        \end{table}
+
+        \vspace{0.8em}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_SVR_rents.tex}
+          \caption{Best Support Vector Regression hyperparameters for apartment rental price prediction}
+          \label{tab:best_svr_rents}
+        \end{table}
+
+      \end{frame}
+
+      \begin{frame}{Gradient Boosting}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_GradientBoostingRegressor_sales.tex}
+          \caption{Best Gradient Boosting hyperparameters for apartment sale price prediction}
+          \label{tab:best_gb_sales}
+        \end{table}
+
+        \vspace{0.8em}
+
+        \begin{table}
+          \centering
+          \input{Tables/best_GradientBoostingRegressor_rents.tex}
+          \caption{Best Gradient Boosting hyperparameters for apartment rental price prediction}
+          \label{tab:best_gb_rents}
+        \end{table}
+
+      \end{frame}
     \subsection{Evaluation of the Models}
+      \begin{frame}{Evaluation of Sales Models}
+
+        \only<1>{
+          \begin{table}
+            \centering
+            \input{Tables/score_sales_report_table_R2}
+            \caption{Cross-validation and test $R^2$ score for sales models}
+            \label{tab:model_performance_sales_R2}
+          \end{table}
+        }
+
+        \only<2>{
+          \begin{table}
+            \centering
+            \resizebox{\textwidth}{!}{
+              \input{Tables/score_sales_report_table_NMAE}
+            }
+            \caption{Cross-validation and test Negative Mean Absolute Error score for sales models}
+            \label{tab:model_performance_sales_NMAE}
+          \end{table}
+        }
+
+        \only<3>{
+          \begin{table}
+            \centering
+            \resizebox{\textwidth}{!}{
+              \input{Tables/score_sales_report_table_NRMSE}
+            }
+            \caption{Cross-validation and test Negative Root Mean Square Error score for sales models}
+            \label{tab:model_performance_sales_NRMSE}
+          \end{table}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Evaluation of Rental Models}
+
+        \only<1>{
+          \begin{table}
+            \centering
+            \input{Tables/score_rents_report_table_R2}
+            \caption{Cross-validation and test $R^2$ score for rental models}
+            \label{tab:model_performance_rents_R2}
+          \end{table}
+        }
+
+        \only<2>{
+          \begin{table}
+            \centering
+            \resizebox{\textwidth}{!}{
+              \input{Tables/score_rents_report_table_NMAE}
+            }
+            \caption{Cross-validation and test Negative Mean Absolute Error score for rental models}
+            \label{tab:model_performance_rents_NMAE}
+          \end{table}
+        }
+
+        \only<3>{
+          \begin{table}
+            \centering
+            \resizebox{\textwidth}{!}{
+              \input{Tables/score_rents_report_table_NRMSE}
+            }
+            \caption{Cross-validation and test Negative Root Mean Square Error score for rental models}
+            \label{tab:model_performance_rents_NRMSE}
+          \end{table}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Visualization of Model: Linear Regression}
+        \small
+        \centering
+        \only<1>{Sales model}
+        \only<2>{Rental model}
+        \normalsize
+
+        \only<1>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_LinearRegression_sales}
+            \caption{Predicted versus true apartment sales prices using Linear Regression}
+            \label{fig:pred_vs_true_lr_sales}
+          \end{figure}
+        }
+
+        \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_LinearRegression_rents}
+            \caption{Predicted versus true apartment rental prices using Linear Regression}
+            \label{fig:pred_vs_true_lr_rents}
+          \end{figure}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Visualization of Model: Support Vector Regression}
+        \small
+        \centering
+        \only<1>{Sales model}
+        \only<2>{Rental model}
+        \normalsize
+
+        \only<1>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.7\textwidth]{Images/Predicted_vs_True_for_SVR_sales}
+            \caption{Predicted versus true apartment sales prices using Support Vector Regression}
+            \label{fig:pred_vs_true_svr_sales}
+          \end{figure}
+        }
+
+        \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.7\textwidth]{Images/Predicted_vs_True_for_SVR_rents}
+            \caption{Predicted versus true apartment rental prices using Support Vector Regression}
+            \label{fig:pred_vs_true_svr_rents}
+          \end{figure}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Visualization of Model: Gradient Boosting}
+        \small
+        \centering
+        \only<1>{Sales model}
+        \only<2>{Rental model}
+        \normalsize
+
+        \only<1>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.8\textwidth]{Images/Predicted_vs_True_for_GradientBoostingRegressor_sales}
+            \caption{Predicted versus true apartment sales prices using Gradient Boosting}
+            \label{fig:pred_vs_true_gbr_sales}
+          \end{figure}
+        }
+
+        \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.8\textwidth]{Images/Predicted_vs_True_for_GradientBoostingRegressor_rents}
+            \caption{Predicted versus true apartment rental prices using Gradient Boosting}
+            \label{fig:pred_vs_true_gbr_rents}
+          \end{figure}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Visualization of Model: Random Forest}
+        \small
+        \centering
+        \only<1>{Sales model}
+        \only<2>{Rental model}
+        \normalsize
+
+        \only<1>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_RandomForest_sales}
+            \caption{Predicted versus true apartment sales prices using Random Forest}
+            \label{fig:pred_vs_true_rf_sales}
+          \end{figure}
+        }
+
+        \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_RandomForest_rents}
+            \caption{Predicted versus true apartment rental prices using Random Forest}
+            \label{fig:pred_vs_true_rf_rents}
+          \end{figure}
+        }
+
+      \end{frame}
+
+      \begin{frame}{Visualization of Model: K-Nearest Neighbors}
+        \small
+        \centering
+        \only<1>{Sales model}
+        \only<2>{Rental model}
+        \normalsize
+
+        \only<1>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_KNeighborsRegressor_sales}
+            \caption{Predicted versus true apartment sales prices using K-Nearest Neighbors}
+            \label{fig:pred_vs_true_knn_sales}
+          \end{figure}
+        }
+
+        \only<2>{
+          \begin{figure}
+            \centering
+            \includegraphics[width=0.75\textwidth]{Images/Predicted_vs_True_for_KNeighborsRegressor_rents}
+            \caption{Predicted versus true apartment rental prices using K-Nearest Neighbors}
+            \label{fig:pred_vs_true_knn_rents}
+          \end{figure}
+        }
+      \end{frame}
+
     \subsection{Picking the best Model}
     \subsection{Application}
     \subsection{Contribution Table}
