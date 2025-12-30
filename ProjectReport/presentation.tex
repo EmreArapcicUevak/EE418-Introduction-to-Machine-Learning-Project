@@ -479,7 +479,92 @@
   \section{Feature Engineering}
     \subsection{Feature Selection}
     \subsection{Feature Creation}
+      \begin{frame}{Using coordiantes}
+        So we showed that coordinates are an important feature to have, however we did not cover how to use them. \newline \pause
+
+        One way that we picked to work with coordinates was that first we would load the so-called points of interests of a region,
+        then we would find the closest point to some apartment, calculate the distance from the point to the apartment, and use that as a feature. \newline \pause
+
+        But what is a point of interest? \newline \pause
+
+        A point of interest can be any amenity that could or would play a role in the pricing of the apartment.
+      \end{frame}
+
+      \begin{frame}{Example of POI}
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textheight]{Images/distribution_of_bus_stops}
+
+          \caption{All bus stops in Canton Sarajevo}
+          \label{fig:Bus Stops in Canton Sarajevo}
+        \end{figure}
+      \end{frame}
+
+      \begin{frame}{Problem}
+        \noindent However, using coordinates opens us to another set of problems. \newline
+
+        \begin{itemize}
+          \item What if the given apartment was mislabeled?
+          \item What if the apartment was marked as being outside of canton Sarajevo?
+          \item What if the apartment was an agency?
+        \end{itemize}
+
+      \end{frame}
+
     \subsection{Data cleaning (Again)}
+    \begin{frame}{The idea}
+      So how would we go about cleaning the apartment? \pause \newline
+
+      Well there is one simple idea, and that is by checking the location of the apartment and comparing it with its labeled
+      municipality that it claims to be in. \pause \newline
+
+      This is not a perfect approach for removing agencies since agencies can still be in the same municipality that they are selling the apartment.
+      However, the method does work. \newline \pause
+
+      One nice benefit of this method is that it also lets us remove faulty apartments and in some cases it even helped us remove an apartment that did not exist.
+    \end{frame}
+
+    \begin{frame}{Results}
+      \begin{figure}[h]
+        \centering
+        \includegraphics[height=0.7\textheight]{CustomImages/Removed_Apartments}
+        \caption{Removed Apartments}
+        \label{fig:Removed Apartments}
+      \end{figure}
+    \end{frame}
+
+    \begin{frame}{Problem}
+      \only<1>{
+        However, this method does have a problem, and it lies in the fact that human error can happen and usually tend to happen close to the borders.
+      }
+
+      \only<2>{
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth]{CustomImages/Miss_Labeled_Aparmtent}
+          \caption{Mislabeled apartment}
+          \label{fig:MisLabeled Apartment}
+        \end{figure}
+      }
+
+      \only<3>{
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=\textwidth]{CustomImages/corrected_apartments}
+          \caption{Corrected Apartments}
+          \label{fig:Corrected Apartments 300m}
+        \end{figure}
+      }
+    \end{frame}
+
+    \begin{frame}{Final Results}
+      \begin{figure}[h]
+        \centering
+        \includegraphics[width=\textwidth]{Images/Comparison_Of_All_and_Corrected_apartments}
+        \caption{Comparison of all and corrected apartments}
+        \label{fig:Comparison Of All and Corrected apartments}
+      \end{figure}
+    \end{frame}
 
   \section{Results}
     \subsection{Best Models}
