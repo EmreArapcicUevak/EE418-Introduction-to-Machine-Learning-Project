@@ -875,6 +875,36 @@
       \end{frame}
 
     \subsection{Picking the best Model}
+      \begin{frame}{Picking the Best Model}
+
+      \begin{itemize}
+        \item \textbf{Primary criteria}
+          \begin{itemize}
+            \item Good generalization on unseen (test) data
+            \item Lower test error than the baseline model
+          \end{itemize}
+
+        \pause
+        \vspace{0.5em}
+
+        \item \textbf{Model comparison strategy}
+          \begin{itemize}
+            \item Highest test $R^2$ (variance explained)
+            \item Lowest test NMAE (average prediction error)
+            \item NRMSE used to resolve close cases
+          \end{itemize}
+
+        \vspace{0.5em}
+        \pause
+
+        \item \textbf{Final decision}
+          \begin{itemize}
+            \item \textbf{Sales model:} Support Vector Regression
+            \item \textbf{Rental model:} K-Nearest Neighbors
+          \end{itemize}
+      \end{itemize}
+
+      \end{frame}
     \subsection{Application}
     \subsection{Contribution Table}
   
